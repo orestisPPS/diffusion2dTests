@@ -1,0 +1,6 @@
+[submodule "FEM"]
+	path = FEM
+	url = https://github.com/TheoChristo/FEM.git
+[submodule "Constitutive"]
+	path = Constitutive
+	url = https://github.com/TheoChristo/Constitutive.git
