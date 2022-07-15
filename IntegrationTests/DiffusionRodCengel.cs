@@ -66,7 +66,7 @@ namespace ConvectionDiffusionTest
             Console.WriteLine("Analytical Solution = " + analyticalSolution);
             Console.WriteLine("Numerical Solution = " + numericalSolution);
 
-            if ( Math.Abs(numericalSolution - analyticalSolution) <= 1E-6)
+            if ( Math.Abs((analyticalSolution - numericalSolution) / analyticalSolution ) <= 1E-6)
             {
                 Console.WriteLine("MSolve solution matches analytical solution.");
                 Console.WriteLine("Test Passed!");

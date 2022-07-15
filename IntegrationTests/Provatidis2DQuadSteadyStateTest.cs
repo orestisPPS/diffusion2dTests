@@ -106,7 +106,7 @@ namespace ConvectionDiffusionTest
             var isAMatch = true;
             for (int i = 0; i < numericalSolution.Length; i++)
             {
-                if (Math.Abs(numericalSolution[i] - prescribedSolution[i]) > 1E-6)
+                if (Math.Abs((prescribedSolution[i] - numericalSolution[i]) / prescribedSolution[i]) > 1E-6)
                 {
                     isAMatch = false;
                     break;
