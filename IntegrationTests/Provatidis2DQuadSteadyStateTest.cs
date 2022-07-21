@@ -81,14 +81,9 @@ namespace ConvectionDiffusionTest
                 },
                 new INodalConvectionDiffusionNeumannBoundaryCondition[]
                 {
-                    new NodalUnknownVariableFlux(nodes[0], ConvectionDiffusionDof.UnknownVariable, 0d),
-                    new NodalUnknownVariableFlux(nodes[1], ConvectionDiffusionDof.UnknownVariable, 0d),
-                    new NodalUnknownVariableFlux(nodes[2], ConvectionDiffusionDof.UnknownVariable, 0d),
-                    new NodalUnknownVariableFlux(nodes[5], ConvectionDiffusionDof.UnknownVariable, 50d),
-                    new NodalUnknownVariableFlux(nodes[6], ConvectionDiffusionDof.UnknownVariable, 0d),
-                    new NodalUnknownVariableFlux(nodes[7], ConvectionDiffusionDof.UnknownVariable, 0d),
-                    new NodalUnknownVariableFlux(nodes[8], ConvectionDiffusionDof.UnknownVariable, 0d),
-
+                    new NodalUnknownVariableFlux(model.NodesDictionary[2], ConvectionDiffusionDof.UnknownVariable, 25d),
+                    new NodalUnknownVariableFlux(model.NodesDictionary[5], ConvectionDiffusionDof.UnknownVariable, 50d),
+                    new NodalUnknownVariableFlux(model.NodesDictionary[8], ConvectionDiffusionDof.UnknownVariable, 25d),
                 }
             ));
 
