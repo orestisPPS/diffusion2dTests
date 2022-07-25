@@ -22,7 +22,7 @@ namespace ConvectionDiffusionTest
                 model.NodesDictionary.Add(node.ID, node);
             }
             
-            var material = new ConvectionDiffusionProperties(capacityCoeff : 0d, diffusionCoeff : 1d, convectionCoeff : 0d, dependentSourceCoeff : 0d, independentSourceCoeff : 0d);
+            var material = new ConvectionDiffusionProperties(capacityCoeff : 0d, diffusionCoeff : 1d, convectionCoeff : new[] {0d} , dependentSourceCoeff : 0d, independentSourceCoeff : 0d);
 
             var elements = new ConvectionDiffusionRod[]
             {

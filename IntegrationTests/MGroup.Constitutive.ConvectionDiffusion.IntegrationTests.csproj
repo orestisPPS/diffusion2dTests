@@ -10,13 +10,13 @@
   <ItemGroup>
     <PackageReference Include="MGroup.LinearAlgebra" Version="0.1.0-unstable.68" />
     <PackageReference Include="MGroup.MSolve.Core" Version="0.2.0-unstable.40" />
-    <PackageReference Include="MGroup.Solvers" Version="0.2.0-unstable.6" />
     <PackageReference Include="MGroup.NumericalAnalyzers.Discretization" Version="0.2.0-unstable.8" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\FEM\src\MGroup.FEM.ConvectionDiffusion\MGroup.FEM.ConvectionDiffusion.csproj" />
     <ProjectReference Include="..\Constitutive\src\MGroup.Constitutive.ConvectionDiffusion\MGroup.Constitutive.ConvectionDiffusion.csproj" />
+    <ProjectReference Include="..\Solvers\src\MGroup.Solvers\MGroup.Solvers.csproj" />
   </ItemGroup>
 
 </Project>

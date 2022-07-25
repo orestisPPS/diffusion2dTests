@@ -34,7 +34,7 @@ namespace ConvectionDiffusionTest
 			{
 				model.NodesDictionary.Add(node.ID, node);
 			}
-			var material = new ConvectionDiffusionProperties(capacityCoeff: 1d, diffusionCoeff: 1d, convectionCoeff: 0d, dependentSourceCoeff:0d, independentSourceCoeff: 0d);
+			var material = new ConvectionDiffusionProperties(capacityCoeff: 1d, diffusionCoeff: 1d, convectionCoeff: new[] {0d, 0d} , dependentSourceCoeff:0d, independentSourceCoeff: 0d);
 			var elementFactory = new ConvectionDiffusionElement2DFactory(commonThickness: 1.0, material);
 			var elements = new ConvectionDiffusionElement2D[]
 			{

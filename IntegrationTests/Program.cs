@@ -1,6 +1,7 @@
 ﻿using MGroup.Constitutive.ConvectionDiffusion;
 using MGroup.NumericalAnalyzers.Dynamic;
 using MGroup.Solvers.Direct;
+using MGroup.Solvers.Iterative;
 using MGroup.MSolve.Discretization.Entities;
 using MGroup.NumericalAnalyzers;
 using MGroup.MSolve.Discretization.Dofs;
@@ -16,9 +17,9 @@ namespace ConvectionDiffusionTest
         static void Main(string[] args)
         {
             //RodDiffusionTest();
-            //RodConvectionDiffusionTest();
+            RodConvectionDiffusionTest();
             //Provatidis2dDiffusionSteadyState();
-            Reddy2dDiffusionSteadyState();
+            //Reddy2dDiffusionSteadyState();
             //Provatidis2dDiffusionDynamic();
         }
 
@@ -32,9 +33,11 @@ namespace ConvectionDiffusionTest
 
             var linearAnalyzer = new LinearAnalyzer(algebraicModel, solver, problem);
 
-            var dynamicAnalyzerBuilder = new NewmarkDynamicAnalyzer.Builder(model, algebraicModel, solver, problem, linearAnalyzer, timeStep: 0.5, totalTime: 1000);
-            dynamicAnalyzerBuilder.SetNewmarkParameters(beta: 0.25, gamma: 0.5, allowConditionallyStable: true);
-            var dynamicAnalyzer = dynamicAnalyzerBuilder.Build();
+            //var analyzer = new NewmarkDynamicAnalyzer.Builder(model, algebraicModel, solver, problem, linearAnalyzer, timeStep: 0.5, totalTime: 1000);
+            //analyzer.SetNewmarkParameters(beta: 0.25, gamma: 0.5, allowConditionallyStable: true);
+            //var analyzer = dynamicAnalyzerBuilder.Build();
+
+            var analyzer = new StaticAnalyzer(model, algebraicModel, solver, problem, linearAnalyzer);
 
             var watchDofs = new List<(INode node, IDofType dof)>()
                         {
@@ -42,8 +45,8 @@ namespace ConvectionDiffusionTest
                         };
             linearAnalyzer.LogFactory = new LinearAnalyzerLogFactory(watchDofs, algebraicModel);
 
-            dynamicAnalyzer.Initialize();
-            dynamicAnalyzer.Solve();
+            analyzer.Initialize();
+            analyzer.Solve();
 
             DOFSLog log = (DOFSLog)linearAnalyzer.Logs[0];
             DiffusionRodCengel.CheckResults(log.DOFValues[watchDofs[0].node, watchDofs[0].dof]);
@@ -53,17 +56,18 @@ namespace ConvectionDiffusionTest
         static void RodConvectionDiffusionTest()
         {
             var model = ConvectionDiffusionRodZienkiewicz.CreateModel();
-            var solverFactory = new SkylineSolver.Factory();
+            var solverFactory = new DenseMatrixSolver.Factory();
             var algebraicModel = solverFactory.BuildAlgebraicModel(model);
             var solver = solverFactory.BuildSolver(algebraicModel);
             var problem = new ProblemConvectionDiffusion(model, algebraicModel, solver);
 
             var linearAnalyzer = new LinearAnalyzer(algebraicModel, solver, problem);
 
-            var dynamicAnalyzerBuilder = new NewmarkDynamicAnalyzer.Builder(model, algebraicModel, solver, problem, linearAnalyzer, timeStep: 0.5, totalTime: 1000);
-            dynamicAnalyzerBuilder.SetNewmarkParameters(beta: 0.25, gamma: 0.5, allowConditionallyStable: true);
-            var dynamicAnalyzer = dynamicAnalyzerBuilder.Build();
+            //var analyzer = new NewmarkDynamicAnalyzer.Builder(model, algebraicModel, solver, problem, linearAnalyzer, timeStep: 0.5, totalTime: 1000);
+            //analyzer.SetNewmarkParameters(beta: 0.25, gamma: 0.5, allowConditionallyStable: true);
+            //var analyzer = dynamicAnalyzerBuilder.Build();
 
+            var analyzer = new StaticAnalyzer(model, algebraicModel, solver, problem, linearAnalyzer);
 
             var watchDofs = new List<(INode node, IDofType dof)>()
             {
@@ -80,8 +84,8 @@ namespace ConvectionDiffusionTest
 
             linearAnalyzer.LogFactory = new LinearAnalyzerLogFactory(watchDofs, algebraicModel);
 
-            dynamicAnalyzer.Initialize();
-            dynamicAnalyzer.Solve();
+            analyzer.Initialize();
+            analyzer.Solve();
 
             DOFSLog log = (DOFSLog)linearAnalyzer.Logs[0];
             var numericalSolution = new double[watchDofs.Count];

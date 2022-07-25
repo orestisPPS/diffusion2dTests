@@ -8,8 +8,8 @@ namespace ConvectionDiffusionTest
 {
     public static class ConvectionDiffusionRodZienkiewicz
     {
-        public static double ConvectionCoeff => 1d;
-        public static double DiffusionCoeff => -1d;
+        public static double[] ConvectionCoeff => new[]  {1d};
+        public static double DiffusionCoeff => 1d;
 
         public static double Length => 1d;
 
@@ -40,16 +40,16 @@ namespace ConvectionDiffusionTest
 
             var elements = new ConvectionDiffusionRod[]
             {
-                new ConvectionDiffusionRod(new [] {nodes[0], nodes[1]}, 0.1, material),
-                new ConvectionDiffusionRod(new [] {nodes[1], nodes[2]}, 0.1, material),
-                new ConvectionDiffusionRod(new [] {nodes[2], nodes[3]}, 0.1, material),
-                new ConvectionDiffusionRod(new [] {nodes[3], nodes[4]}, 0.1, material),
-                new ConvectionDiffusionRod(new [] {nodes[4], nodes[5]}, 0.1, material),
-                new ConvectionDiffusionRod(new [] {nodes[5], nodes[6]}, 0.1, material),
-                new ConvectionDiffusionRod(new [] {nodes[6], nodes[7]}, 0.1, material),
-                new ConvectionDiffusionRod(new [] {nodes[7], nodes[8]}, 0.1, material),
-                new ConvectionDiffusionRod(new [] {nodes[8], nodes[9]}, 0.1, material),
-                new ConvectionDiffusionRod(new [] {nodes[9], nodes[10]}, 0.1, material)
+                new ConvectionDiffusionRod(new [] {nodes[0], nodes[1]}, crossSectionArea : 1d, material),
+                new ConvectionDiffusionRod(new [] {nodes[1], nodes[2]}, crossSectionArea : 1d, material),
+                new ConvectionDiffusionRod(new [] {nodes[2], nodes[3]}, crossSectionArea : 1d, material),
+                new ConvectionDiffusionRod(new [] {nodes[3], nodes[4]}, crossSectionArea : 1d, material),
+                new ConvectionDiffusionRod(new [] {nodes[4], nodes[5]}, crossSectionArea : 1d, material),
+                new ConvectionDiffusionRod(new [] {nodes[5], nodes[6]}, crossSectionArea : 1d, material),
+                new ConvectionDiffusionRod(new [] {nodes[6], nodes[7]}, crossSectionArea : 1d, material),
+                new ConvectionDiffusionRod(new [] {nodes[7], nodes[8]}, crossSectionArea : 1d, material),
+                new ConvectionDiffusionRod(new [] {nodes[8], nodes[9]}, crossSectionArea : 1d, material),
+                new ConvectionDiffusionRod(new [] {nodes[9], nodes[10]}, crossSectionArea : 1d, material)
             };
 
 
@@ -74,14 +74,14 @@ namespace ConvectionDiffusionTest
             return model;
         }
 
-        public static Func<double, double> rodAnalyticalSolution = (x) => (Math.Exp(ConvectionCoeff * x / DiffusionCoeff) - Math.Exp(ConvectionCoeff * Length / DiffusionCoeff))
-                                                                          / (1d - Math.Exp(ConvectionCoeff * Length / DiffusionCoeff));
+        public static Func<double, double> rodAnalyticalSolution = (x) => (Math.Exp(ConvectionCoeff[0] * x / DiffusionCoeff) - Math.Exp(ConvectionCoeff[0] * Length / DiffusionCoeff))
+                                                                          / (1d - Math.Exp(ConvectionCoeff[0] * Length / DiffusionCoeff));
         public static double[] CalculateAnalyticalSolution()
         {
             var solution = new double[9];
             for (int i = 0; i < solution.Length; i++)
             {
-                var x = 0.1 + (i + 1);
+                var x = 0.1 * (i + 1);
                 solution[i] = rodAnalyticalSolution(x);
             }
             return solution;

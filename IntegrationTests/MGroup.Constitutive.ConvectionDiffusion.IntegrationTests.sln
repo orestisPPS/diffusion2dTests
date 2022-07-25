@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MGroup.Constitutive.Convect
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MGroup.FEM.ConvectionDiffusion", "..\FEM\src\MGroup.FEM.ConvectionDiffusion\MGroup.FEM.ConvectionDiffusion.csproj", "{D4BFFF12-2014-4A53-B881-0C9145AD8DC4}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MGroup.Solvers", "..\Solvers\src\MGroup.Solvers\MGroup.Solvers.csproj", "{32FC19D3-FF0A-4E98-9F2C-F79E188A2B0B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{D4BFFF12-2014-4A53-B881-0C9145AD8DC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D4BFFF12-2014-4A53-B881-0C9145AD8DC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D4BFFF12-2014-4A53-B881-0C9145AD8DC4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32FC19D3-FF0A-4E98-9F2C-F79E188A2B0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32FC19D3-FF0A-4E98-9F2C-F79E188A2B0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32FC19D3-FF0A-4E98-9F2C-F79E188A2B0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32FC19D3-FF0A-4E98-9F2C-F79E188A2B0B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
