@@ -9,10 +9,11 @@ namespace ConvectionDiffusionTest
 {
     public static class ConvectionDiffusionThermalBenchmarkHexa
     {   
-        public static double[] ConvectionCoeff => new[]  {0d, 0d, 0d};
+        public static double[] ConvectionCoeff => new[]  {1d, 1d, 1d};
         public static double DiffusionCoeff => 1d;
         
-        public static double[] prescribedSolution = new double[] { 135.054, 158.824, 135.054, 469.004, 147.059, 159.327, 178.178, 147.299, 139.469, 147.059, 191.717, 147.059, 135.054, 158.824, 135.054, 469.004, 147.059, 159.327 };
+        public static double[] prescribedSolution = new double[] { 62.5 };
+        // public static double[] prescribedSolution = new double[] { 135.054, 158.824, 135.054, 469.004, 147.059, 159.327, 178.178, 147.299, 139.469, 147.059, 191.717, 147.059, 135.054, 158.824, 135.054, 469.004, 147.059, 159.327 };
 			
         public static Model CreateModel()
         {
@@ -115,24 +116,24 @@ namespace ConvectionDiffusionTest
 			model.BoundaryConditions.Add(new ConvectionDiffusionBoundaryConditionSet(
 				new[]
 				{
-					new NodalUnknownVariable(model.NodesDictionary[0], ConvectionDiffusionDof.UnknownVariable, 50d),
-					new NodalUnknownVariable(model.NodesDictionary[1], ConvectionDiffusionDof.UnknownVariable, 50d),
-					new NodalUnknownVariable(model.NodesDictionary[2], ConvectionDiffusionDof.UnknownVariable, 50d),
-					new NodalUnknownVariable(model.NodesDictionary[4], ConvectionDiffusionDof.UnknownVariable, 50d),
-					new NodalUnknownVariable(model.NodesDictionary[5], ConvectionDiffusionDof.UnknownVariable, 50d),
-					new NodalUnknownVariable(model.NodesDictionary[7], ConvectionDiffusionDof.UnknownVariable, 50d),
-					new NodalUnknownVariable(model.NodesDictionary[10], ConvectionDiffusionDof.UnknownVariable, 50d),
-					new NodalUnknownVariable(model.NodesDictionary[12], ConvectionDiffusionDof.UnknownVariable, 50d),
-					new NodalUnknownVariable(model.NodesDictionary[17], ConvectionDiffusionDof.UnknownVariable, 50d),
+					new NodalUnknownVariable(model.NodesDictionary[0], ConvectionDiffusionDof.UnknownVariable,  100d),
+					new NodalUnknownVariable(model.NodesDictionary[1], ConvectionDiffusionDof.UnknownVariable,  100d),
+					new NodalUnknownVariable(model.NodesDictionary[2], ConvectionDiffusionDof.UnknownVariable,  100d),
 					new NodalUnknownVariable(model.NodesDictionary[9], ConvectionDiffusionDof.UnknownVariable,  100d),
-					new NodalUnknownVariable(model.NodesDictionary[14], ConvectionDiffusionDof.UnknownVariable, 100d),
-					new NodalUnknownVariable(model.NodesDictionary[16], ConvectionDiffusionDof.UnknownVariable, 100d),
+					new NodalUnknownVariable(model.NodesDictionary[10], ConvectionDiffusionDof.UnknownVariable, 100d),
+					new NodalUnknownVariable(model.NodesDictionary[11], ConvectionDiffusionDof.UnknownVariable, 100d),
+					new NodalUnknownVariable(model.NodesDictionary[18], ConvectionDiffusionDof.UnknownVariable, 100d),
 					new NodalUnknownVariable(model.NodesDictionary[19], ConvectionDiffusionDof.UnknownVariable, 100d),
-					new NodalUnknownVariable(model.NodesDictionary[21], ConvectionDiffusionDof.UnknownVariable, 100d),
-					new NodalUnknownVariable(model.NodesDictionary[22], ConvectionDiffusionDof.UnknownVariable, 100d),
-					new NodalUnknownVariable(model.NodesDictionary[24], ConvectionDiffusionDof.UnknownVariable, 100d),
-					new NodalUnknownVariable(model.NodesDictionary[25], ConvectionDiffusionDof.UnknownVariable, 100d),
-					new NodalUnknownVariable(model.NodesDictionary[26], ConvectionDiffusionDof.UnknownVariable, 100d),
+					new NodalUnknownVariable(model.NodesDictionary[20], ConvectionDiffusionDof.UnknownVariable, 100d),
+					new NodalUnknownVariable(model.NodesDictionary[6], ConvectionDiffusionDof.UnknownVariable,  50d),
+					new NodalUnknownVariable(model.NodesDictionary[7], ConvectionDiffusionDof.UnknownVariable,  50d),
+					new NodalUnknownVariable(model.NodesDictionary[8], ConvectionDiffusionDof.UnknownVariable,  50d),
+					new NodalUnknownVariable(model.NodesDictionary[15], ConvectionDiffusionDof.UnknownVariable, 50d),
+					new NodalUnknownVariable(model.NodesDictionary[16], ConvectionDiffusionDof.UnknownVariable, 50d),
+					new NodalUnknownVariable(model.NodesDictionary[17], ConvectionDiffusionDof.UnknownVariable, 50d),
+					new NodalUnknownVariable(model.NodesDictionary[24], ConvectionDiffusionDof.UnknownVariable, 50d),
+					new NodalUnknownVariable(model.NodesDictionary[25], ConvectionDiffusionDof.UnknownVariable, 50d),
+					new NodalUnknownVariable(model.NodesDictionary[26], ConvectionDiffusionDof.UnknownVariable, 50d),
 				},
                 new INodalConvectionDiffusionNeumannBoundaryCondition[] {} 
 			));
@@ -142,11 +143,11 @@ namespace ConvectionDiffusionTest
 
         public static void CheckResults(double[] numericalSolution)
         {
-            // if (numericalSolution.Length != prescribedSolution.Length)
-            // {
-            //     Console.WriteLine("Array Lengths do not match");
-            //     return;
-            // }
+            if (numericalSolution.Length != prescribedSolution.Length)
+            {
+                Console.WriteLine("Array Lengths do not match");
+                return;
+            }
 
             var isAMatch = true;
             for (int i = 0; i < numericalSolution.Length; i++)

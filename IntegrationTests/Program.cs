@@ -266,26 +266,23 @@ namespace ConvectionDiffusionTest
 
             var analyzer = new StaticAnalyzer(model, algebraicModel, solver, problem, linearAnalyzer);
 
-            // var watchDofs = new List<(INode node, IDofType dof)>()
-            // {
-            //     (model.NodesDictionary[6], ConvectionDiffusionDof.UnknownVariable),
-            //     (model.NodesDictionary[7], ConvectionDiffusionDof.UnknownVariable),
-            //     (model.NodesDictionary[10], ConvectionDiffusionDof.UnknownVariable),
-            //     (model.NodesDictionary[11], ConvectionDiffusionDof.UnknownVariable),
-            // };
+            var watchDofs = new List<(INode node, IDofType dof)>()
+            {
+                (model.NodesDictionary[13], ConvectionDiffusionDof.UnknownVariable),
+            };
 
-            // linearAnalyzer.LogFactory = new LinearAnalyzerLogFactory(watchDofs, algebraicModel);
+            linearAnalyzer.LogFactory = new LinearAnalyzerLogFactory(watchDofs, algebraicModel);
 
             analyzer.Initialize();
             analyzer.Solve();
 
-            // DOFSLog log = (DOFSLog)linearAnalyzer.Logs[0];
-            // var numericalSolution = new double[watchDofs.Count];
-            // for (int i = 0; i < numericalSolution.Length; i++)
-            // {
-            //     numericalSolution[i] = log.DOFValues[watchDofs[i].node, watchDofs[i].dof];
-            // }
-            ConvectionDiffusionThermalBenchmarkHexa.CheckResults(solver.LinearSystem.Solution.SingleVector.CopyToArray());
+            DOFSLog log = (DOFSLog)linearAnalyzer.Logs[0];
+            var numericalSolution = new double[watchDofs.Count];
+            for (int i = 0; i < numericalSolution.Length; i++)
+            {
+                numericalSolution[i] = log.DOFValues[watchDofs[i].node, watchDofs[i].dof];
+            }
+            ConvectionDiffusionThermalBenchmarkHexa.CheckResults(numericalSolution);
         }
     }
 }
