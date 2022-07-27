@@ -8,6 +8,7 @@ using MGroup.MSolve.Discretization.Dofs;
 using MGroup.NumericalAnalyzers.Logging;
 using MGroup.Constitutive.ConvectionDiffusion.BoundaryConditions;
 using MGroup.FEM.ConvectionDiffusion.Line;
+using System.Collections.Generic;
 
 namespace ConvectionDiffusionTest
 
@@ -17,10 +18,12 @@ namespace ConvectionDiffusionTest
         static void Main(string[] args)
         {
             //RodDiffusionTest();
-            RodConvectionDiffusionTest();
+            //RodConvectionDiffusionTest();
             //Provatidis2dDiffusionSteadyState();
             //Reddy2dDiffusionSteadyState();
             //Provatidis2dDiffusionDynamic();
+            // ConvectionDiffusionComsol2DStatic();
+            ConvDiffThermalBenchmarkHexa();
         }
 
         static void RodDiffusionTest()
@@ -167,9 +170,6 @@ namespace ConvectionDiffusionTest
 
             dynamicAnalyzer.Initialize();
             dynamicAnalyzer.Solve();
-/*
-            staticAnalyzer.Initialize();
-            staticAnalyzer.Solve();*/
 
             DOFSLog log = (DOFSLog)linearAnalyzer.Logs[0];
             var numericalSolution = new double[watchDofs.Count];
@@ -221,5 +221,71 @@ namespace ConvectionDiffusionTest
             dynamicAnalyzer.Solve();
         }
 
+        static void ConvectionDiffusionComsol2DStatic()
+        {
+            var model = Comsol2DStaticQuadConvDiff.CreateModel();
+            var solverFactory = new DenseMatrixSolver.Factory(); //Dense Matrix Solver solves with zero matrices!
+            var algebraicModel = solverFactory.BuildAlgebraicModel(model);
+            var solver = solverFactory.BuildSolver(algebraicModel);
+            var problem = new ProblemConvectionDiffusion(model, algebraicModel, solver);
+
+            var linearAnalyzer = new LinearAnalyzer(algebraicModel, solver, problem);
+
+            var analyzer = new StaticAnalyzer(model, algebraicModel, solver, problem, linearAnalyzer);
+
+            var watchDofs = new List<(INode node, IDofType dof)>()
+            {
+                (model.NodesDictionary[6], ConvectionDiffusionDof.UnknownVariable),
+                (model.NodesDictionary[7], ConvectionDiffusionDof.UnknownVariable),
+                (model.NodesDictionary[10], ConvectionDiffusionDof.UnknownVariable),
+                (model.NodesDictionary[11], ConvectionDiffusionDof.UnknownVariable),
+            };
+
+            linearAnalyzer.LogFactory = new LinearAnalyzerLogFactory(watchDofs, algebraicModel);
+
+            analyzer.Initialize();
+            analyzer.Solve();
+
+            DOFSLog log = (DOFSLog)linearAnalyzer.Logs[0];
+            var numericalSolution = new double[watchDofs.Count];
+            for (int i = 0; i < numericalSolution.Length; i++)
+            {
+                numericalSolution[i] = log.DOFValues[watchDofs[i].node, watchDofs[i].dof];
+            }
+            Comsol2DStaticQuadConvDiff.CheckResults(numericalSolution);
+        }
+        static void ConvDiffThermalBenchmarkHexa()
+        {
+            var model = ConvectionDiffusionThermalBenchmarkHexa.CreateModel();
+            var solverFactory = new DenseMatrixSolver.Factory(); //Dense Matrix Solver solves with zero matrices!
+            var algebraicModel = solverFactory.BuildAlgebraicModel(model);
+            var solver = solverFactory.BuildSolver(algebraicModel);
+            var problem = new ProblemConvectionDiffusion(model, algebraicModel, solver);
+
+            var linearAnalyzer = new LinearAnalyzer(algebraicModel, solver, problem);
+
+            var analyzer = new StaticAnalyzer(model, algebraicModel, solver, problem, linearAnalyzer);
+
+            // var watchDofs = new List<(INode node, IDofType dof)>()
+            // {
+            //     (model.NodesDictionary[6], ConvectionDiffusionDof.UnknownVariable),
+            //     (model.NodesDictionary[7], ConvectionDiffusionDof.UnknownVariable),
+            //     (model.NodesDictionary[10], ConvectionDiffusionDof.UnknownVariable),
+            //     (model.NodesDictionary[11], ConvectionDiffusionDof.UnknownVariable),
+            // };
+
+            // linearAnalyzer.LogFactory = new LinearAnalyzerLogFactory(watchDofs, algebraicModel);
+
+            analyzer.Initialize();
+            analyzer.Solve();
+
+            // DOFSLog log = (DOFSLog)linearAnalyzer.Logs[0];
+            // var numericalSolution = new double[watchDofs.Count];
+            // for (int i = 0; i < numericalSolution.Length; i++)
+            // {
+            //     numericalSolution[i] = log.DOFValues[watchDofs[i].node, watchDofs[i].dof];
+            // }
+            ConvectionDiffusionThermalBenchmarkHexa.CheckResults(solver.LinearSystem.Solution.SingleVector.CopyToArray());
+        }
     }
 }
