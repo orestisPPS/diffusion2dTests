@@ -27,10 +27,11 @@ namespace ConvectionDiffusionTest
             //Reddy2dDiffusionSteadyStateTest();
             //Comsol2DConvectionDiffusionSteadyStateTest();
             //Comsol2DConvectionDiffusionDynamicTest();
+            Comsol2DConvectionDiffusionProductionDynamicTest();
 
             //3D
             //Comsol3DConvectionDiffusionSteadyStateHexaTest
-            Comsol3DConvectionDiffusionDynamicHexaTest();
+            //Comsol3DConvectionDiffusionDynamicHexaTest();
         }
 
         static void RodDiffusionTest()
@@ -362,6 +363,41 @@ namespace ConvectionDiffusionTest
                 numericalSolution[i] = log.DOFValues[watchDofs[i].node, watchDofs[i].dof];
             }
             Comsol3DConvectionDiffusionDynamicHexa.CheckResults(numericalSolution);
+        }
+        
+        static void Comsol2DConvectionDiffusionProductionDynamicTest()
+        {
+            var model = Comsol2DConvectionDiffusioProductionDynamic.CreateModel();
+            var solverFactory = new DenseMatrixSolver.Factory();
+            var algebraicModel = solverFactory.BuildAlgebraicModel(model);
+            var solver = solverFactory.BuildSolver(algebraicModel);
+            var problem = new ProblemConvectionDiffusion(model, algebraicModel, solver);
+
+            var linearAnalyzer = new LinearAnalyzer(algebraicModel, solver, problem);
+
+            var dynamicAnalyzerBuilder = new BDFDynamicAnalyzer.Builder(model, algebraicModel, solver, problem, linearAnalyzer, timeStep: 0.1, totalTime: 10, bdfOrder: 5);
+            var dynamicAnalyzer = dynamicAnalyzerBuilder.Build();
+
+            var watchDofs = new List<(INode node, IDofType dof)>()
+            {
+                (model.NodesDictionary[6], ConvectionDiffusionDof.UnknownVariable),  //[1,1]
+                (model.NodesDictionary[10], ConvectionDiffusionDof.UnknownVariable), //[1,2]
+                (model.NodesDictionary[7], ConvectionDiffusionDof.UnknownVariable),  //[2,1]
+                (model.NodesDictionary[11], ConvectionDiffusionDof.UnknownVariable)  //[2,2]
+            };
+
+            linearAnalyzer.LogFactory = new LinearAnalyzerLogFactory(watchDofs, algebraicModel);
+
+            dynamicAnalyzer.Initialize();
+            dynamicAnalyzer.Solve();
+
+            DOFSLog log = (DOFSLog)linearAnalyzer.Logs[0];
+            var numericalSolution = new double[watchDofs.Count];
+            for (int i = 0; i < numericalSolution.Length; i++)
+            {
+                numericalSolution[i] = log.DOFValues[watchDofs[i].node, watchDofs[i].dof];
+            }
+            Comsol2DConvectionDiffusioProductionDynamic.CheckResults(numericalSolution);
         }
     }
 }
