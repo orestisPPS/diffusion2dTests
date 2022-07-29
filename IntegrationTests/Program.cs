@@ -30,7 +30,7 @@ namespace ConvectionDiffusionTest
             Comsol2DConvectionDiffusionProductionDynamicTest();
 
             //3D
-            //Comsol3DConvectionDiffusionSteadyStateHexaTest
+            //Comsol3DConvectionDiffusionStadyStateHexaTest();
             //Comsol3DConvectionDiffusionDynamicHexaTest();
         }
 
