@@ -11,7 +11,7 @@ namespace ConvectionDiffusionTest
         public static double[] ConvectionCoeff => new[] { 1d, 1d };//{1d, 1d};
         public static double DiffusionCoeff => 1d;
         public static double CapacityCoeff => 1d;
-        public static double DependentSourceCoeff => -1d;
+        public static double DependentSourceCoeff => 1d;
         public static double IndependentSourceCoeff => 0d;
 
         //                                                   [1,1]                [1,2]             [2,1]              [2,2]
@@ -54,7 +54,7 @@ namespace ConvectionDiffusionTest
                 independentSourceCoeff: IndependentSourceCoeff
             );
 
-            var elementFactory = new ConvectionDiffusionElement2DFactory(commonThickness: 1, material);
+            var elementFactory = new ConvectionDiffusionElement2DFactory(commonThickness: 1d, material);
 
             var elementNodes = new IReadOnlyList<Node>[]
             {
@@ -118,7 +118,7 @@ namespace ConvectionDiffusionTest
             var isAMatch = true;
             for (int i = 0; i < numericalSolution.Length; i++)
             {
-                Console.WriteLine("Numerical: {0} \tPrescribed: {1}\t Error (%): {2}", numericalSolution[i], prescribedSolution[i], 100d * Math.Abs((prescribedSolution[i] - numericalSolution[i]) / prescribedSolution[i]));
+                Console.WriteLine("Numerical: {0} \tPrescribed: {1}\t Error: {2}", numericalSolution[i], prescribedSolution[i], Math.Abs((prescribedSolution[i] - numericalSolution[i]) / prescribedSolution[i]));
                 if (Math.Abs((prescribedSolution[i] - numericalSolution[i]) / prescribedSolution[i]) > 1E-6)
                 {
                     isAMatch = false;

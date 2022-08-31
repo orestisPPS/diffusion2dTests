@@ -7,16 +7,15 @@ using MGroup.FEM.Helpers;
 
 namespace ConvectionDiffusionTest
 {
-    public static class Comsol3DConvectionDiffusionDynamicHexa
-	{   
+    public static class Comsol3DConvectionDiffusionProductionStStHexa
+	{
         public static double[] ConvectionCoeff => new[]  {1d, 1d, 1d};
         public static double DiffusionCoeff => 1d;
-        public static double CapacityCoeff => 1d;
-        
-        public static double[] prescribedSolution = new double[] { 62.49999999678993 };
-        // public static double[] prescribedSolution = new double[] { 135.054, 158.824, 135.054, 469.004, 147.059, 159.327, 178.178, 147.299, 139.469, 147.059, 191.717, 147.059, 135.054, 158.824, 135.054, 469.004, 147.059, 159.327 };
-			
-        public static Model CreateModel()
+        public static double DependentProductionCoeff => 1d;
+
+        public static double[] prescribedSolution = new double[] { 112.49999999999996 }; // [1, 1, 1]
+
+		public static Model CreateModel()
         {
             var model = new Model();
 			model.SubdomainsDictionary[0] = new Subdomain(id: 0);
@@ -61,50 +60,16 @@ namespace ConvectionDiffusionTest
 				new[] { model.NodesDictionary[25], model.NodesDictionary[16], model.NodesDictionary[15], model.NodesDictionary[24], model.NodesDictionary[22], model.NodesDictionary[13], model.NodesDictionary[12], model.NodesDictionary[21] },
 				new[] { model.NodesDictionary[26], model.NodesDictionary[17], model.NodesDictionary[16], model.NodesDictionary[25], model.NodesDictionary[23], model.NodesDictionary[14], model.NodesDictionary[13], model.NodesDictionary[22] },
 			};
-			// // int nodeIndex = -1;
-			// model.NodesDictionary[0] = new Node(id: 0, x: 0d, y: 0d, z: 0d);
-			// model.NodesDictionary[1] = new Node(id: 1, x: 1.5d, y: 0d, z: 0d);
-			// model.NodesDictionary[2] = new Node(id: 2, x: 0d, y: 1.5d, z: 0d);
-			// model.NodesDictionary[3] = new Node(id: 3, x: 0d, y: 0d, z: 1.5d);
-			// model.NodesDictionary[4] = new Node(id: 4, x: 3d, y: 0d, z: 0d);
-			// model.NodesDictionary[5] = new Node(id: 5, x: 1.5d, y: 1.5d, z: 0d);
-			// model.NodesDictionary[6] = new Node(id: 6, x: 1.5d, y: 0d, z: 1.5d);
-			// model.NodesDictionary[7] = new Node(id: 7, x: 0d, y: 3d, z: 0d);
-			// model.NodesDictionary[8] = new Node(id: 8, x: 0d, y: 1.5d, z: 1.5d);
-			// model.NodesDictionary[9] = new Node(id: 9, x: 0d, y: 0d, z: 3d);
-			// model.NodesDictionary[10] = new Node(id: 10, x: 3d, y: 1.5d, z: 0d);
-			// model.NodesDictionary[11] = new Node(id: 11, x: 3d, y: 0d, z: 1.5d);
-			// model.NodesDictionary[12] = new Node(id: 12, x: 1.5d, y: 3d, z: 0d);
-			// model.NodesDictionary[13] = new Node(id: 13, x: 1.5d, y: 1.5d, z: 1.5d);
-			// model.NodesDictionary[14] = new Node(id: 14, x: 1.5d, y: 0d, z: 3d);
-			// model.NodesDictionary[15] = new Node(id: 15, x: 0d, y: 3d, z: 1.5d);
-			// model.NodesDictionary[16] = new Node(id: 16, x: 0d, y: 1.5d, z: 3d);
-			// model.NodesDictionary[17] = new Node(id: 17, x: 3d, y: 3d, z: 0d);
-			// model.NodesDictionary[18] = new Node(id: 18, x: 3d, y: 1.5d, z: 1.5d);
-			// model.NodesDictionary[19] = new Node(id: 19, x: 3d, y: 0d, z: 3d);
-			// model.NodesDictionary[20] = new Node(id: 20, x: 1.5d, y: 3d, z: 1.5d);
-			// model.NodesDictionary[21] = new Node(id: 21, x: 1.5d, y: 1.5d, z: 3d);
-			// model.NodesDictionary[22] = new Node(id: 22, x: 0d, y: 3d, z: 3d);
-			// model.NodesDictionary[23] = new Node(id: 23, x: 3d, y: 3d, z: 1.5d);
-			// model.NodesDictionary[24] = new Node(id: 24, x: 3d, y: 1.5d, z: 3d);
-			// model.NodesDictionary[25] = new Node(id: 25, x: 1.5d, y: 3d, z: 3d);
-			// model.NodesDictionary[26] = new Node(id: 26, x: 3d, y: 3d, z: 3d);
-
-			// var elementNodes = new INode[][]
-			// {
-			// 	new[] { model.NodesDictionary[0], model.NodesDictionary[1], model.NodesDictionary[2], model.NodesDictionary[5], model.NodesDictionary[3], model.NodesDictionary[6], model.NodesDictionary[8], model.NodesDictionary[13] },
-			// 	new[] { model.NodesDictionary[1], model.NodesDictionary[4], model.NodesDictionary[5], model.NodesDictionary[10], model.NodesDictionary[6], model.NodesDictionary[11], model.NodesDictionary[13], model.NodesDictionary[18] },
-			// 	new[] { model.NodesDictionary[2], model.NodesDictionary[5], model.NodesDictionary[7], model.NodesDictionary[12], model.NodesDictionary[8], model.NodesDictionary[13], model.NodesDictionary[15], model.NodesDictionary[20] },
-			// 	new[] { model.NodesDictionary[3], model.NodesDictionary[6], model.NodesDictionary[8], model.NodesDictionary[13], model.NodesDictionary[9], model.NodesDictionary[14], model.NodesDictionary[16], model.NodesDictionary[21] },
-			// 	new[] { model.NodesDictionary[5], model.NodesDictionary[10], model.NodesDictionary[12], model.NodesDictionary[17], model.NodesDictionary[13], model.NodesDictionary[18], model.NodesDictionary[20], model.NodesDictionary[23] },
-			// 	new[] { model.NodesDictionary[6], model.NodesDictionary[11], model.NodesDictionary[13], model.NodesDictionary[18], model.NodesDictionary[14], model.NodesDictionary[19], model.NodesDictionary[21], model.NodesDictionary[24] },
-			// 	new[] { model.NodesDictionary[8], model.NodesDictionary[13], model.NodesDictionary[15], model.NodesDictionary[20], model.NodesDictionary[16], model.NodesDictionary[21], model.NodesDictionary[22], model.NodesDictionary[25] },
-			// 	new[] { model.NodesDictionary[13], model.NodesDictionary[18], model.NodesDictionary[20], model.NodesDictionary[23], model.NodesDictionary[21], model.NodesDictionary[24], model.NodesDictionary[25], model.NodesDictionary[26] },
-			// };
-			var nodeReordering = new GMeshElementLocalNodeOrdering();
+           
+            var nodeReordering = new GMeshElementLocalNodeOrdering();
 			var rearrangeNodes = elementNodes.Select(x => nodeReordering.ReorderNodes(x, CellType.Hexa8)).ToArray();
 
-            var material = new ConvectionDiffusionProperties(capacityCoeff: CapacityCoeff, diffusionCoeff: DiffusionCoeff, convectionCoeff: ConvectionCoeff , dependentSourceCoeff: 0d, independentSourceCoeff: 0d);
+            var material = new ConvectionDiffusionProperties(
+				capacityCoeff: 0d,
+				diffusionCoeff: DiffusionCoeff,
+				convectionCoeff: ConvectionCoeff,
+				dependentSourceCoeff: DependentProductionCoeff,
+				independentSourceCoeff: 0d);
 
 			var elementFactory = new ConvectionDiffusionElement3DFactory(material);
             for (int i = 0; i < elementNodes.Length; i++)
@@ -155,7 +120,7 @@ namespace ConvectionDiffusionTest
             {
 				var error = Math.Abs((prescribedSolution[i] - numericalSolution[i]) / prescribedSolution[i]);
 
-				Console.WriteLine("Numerical: {0} \tPrescribed: {1} \tError: {2}", numericalSolution[i], prescribedSolution[i], error);
+				Console.WriteLine("Numerical: {0} \tPrescribed: {1} \t AbsoluteRelativeError: {2}", numericalSolution[i], prescribedSolution[i], error * 100d);
                 if (error > 1E-6)
                 {
                     isAMatch = false;

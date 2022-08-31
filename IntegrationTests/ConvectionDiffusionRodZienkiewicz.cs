@@ -98,8 +98,10 @@ namespace ConvectionDiffusionTest
             var isAMatch = true;
             for (int i = 0; i < numericalSolution.Length; i++)
             {
-                if (Math.Abs((prescribedSolution[i] - numericalSolution[i]) / prescribedSolution[i]) > 1E-6)
-                {
+                var error = Math.Abs((prescribedSolution[i] - numericalSolution[i]) / prescribedSolution[i]);
+                Console.WriteLine("Numerical: {0} \tPrescribed: {1} \tError: {2}", numericalSolution[i], prescribedSolution[i], error.ToString("E10"));
+                if (error > 1E-6)
+                { 
                     isAMatch = false;
                     break;
                 }

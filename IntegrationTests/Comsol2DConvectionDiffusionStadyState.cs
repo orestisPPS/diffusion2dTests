@@ -11,9 +11,8 @@ namespace ConvectionDiffusionTest
         public static double[] ConvectionCoeff => new[]  {1d, 1d};
         public static double DiffusionCoeff => 1d;
         
-        //                                                     5                  6                 9                10
-        private static double[] prescribedSolution = { 95.48802946592981, 83.2412523020255, 95.48802946592977, 83.24125230202547};
-        // private static double[] prescribedSolution = { 83.33333333333333, 66.66666666666667, 83.33333333333333, 66.66666666666667};
+        //                                                     6                  7                 10                11
+        private static double[] prescribedSolution = { 96.15384615384615, 84.61538461538457, 96.15384615384615, 84.61538461538456 };
         public static Model CreateModel()
         {
             var model = new Model();
@@ -108,8 +107,9 @@ namespace ConvectionDiffusionTest
             var isAMatch = true;
             for (int i = 0; i < numericalSolution.Length; i++)
             {
-                Console.WriteLine("Numerical: {0} \tPrescribed: {1}", numericalSolution[i], prescribedSolution[i]);
-                if (Math.Abs((prescribedSolution[i] - numericalSolution[i]) / prescribedSolution[i]) > 1E-6)
+                var error = Math.Abs((prescribedSolution[i] - numericalSolution[i]) / prescribedSolution[i]);
+                Console.WriteLine("Numerical: {0} \tPrescribed: {1} \tError: {2}", numericalSolution[i], prescribedSolution[i], error * 100d);
+                if (error > 1E-6)
                 {
                     isAMatch = false;
                     // break;

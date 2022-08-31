@@ -8,38 +8,33 @@ namespace ConvectionDiffusionTest
 {
     public static class Comsol2DConvectionDiffusionDynamic
     {
-        public static double[] ConvectionCoeff => new[] { 1d, 1d };//{1d, 1d};
+        public static double[] ConvectionCoeff => new[] { 1d, 1d };
         public static double DiffusionCoeff => 1d;
         public static double CapacityCoeff => 1d;
 
-        //                                                      5                  6                 9                10
-        //private static double[] prescribedSolution = { 95.48802946592981, 83.2412523020255, 95.48802946592977, 83.24125230202547};     //Convection Diffusion
-        //private static double[] prescribedSolution = {84.61519083332921};     //Convection Diffusion node 11 t = 10
-        //private static double[] prescribedSolution = { 54.57591918415643 };     //Convection Diffusion node 11 t = 1 bdf = 5
-        private static double[] prescribedSolution = { 53.55969257626035 };     //Convection Diffusion node 11 t = 1 bdf = 1
-        //private static double[] prescribedSolution = { 83.33333333333333, 66.66666666666667, 83.33333333333333, 66.66666666666667}; //Diffusion
+        private static double[] prescribedSolution = { 96.15070938016204, 84.61053939729351, 96.150709380162, 84.61053939729348 };     // Comsol Checked NEW YEAR
         public static Model CreateModel()
         {
             var model = new Model();
             model.SubdomainsDictionary.Add(0, new Subdomain(0));
             var nodes = new Node[]
             {
-                new Node(id : 1, x : 0, y : 0),
-                new Node(id : 2, x : 1, y : 0),
-                new Node(id : 3, x : 2, y : 0),
-                new Node(id : 4, x : 3, y : 0),
-                new Node(id : 5, x : 0, y : 1),
-                new Node(id : 6, x : 1, y : 1),
-                new Node(id : 7, x : 2, y : 1),
-                new Node(id : 8, x : 3, y : 1),
-                new Node(id : 9, x : 0, y : 2),
-                new Node(id : 10, x : 1, y : 2),
-                new Node(id : 11, x : 2, y : 2),
-                new Node(id : 12, x : 3, y : 2),
-                new Node(id : 13, x : 0, y : 3),
-                new Node(id : 14, x : 1, y : 3),
-                new Node(id : 15, x : 2, y : 3),
-                new Node(id : 16, x : 3, y : 3),
+                new Node(id : 1, x : 0d, y : 0d),
+                new Node(id : 2, x : 1d, y : 0d),
+                new Node(id : 3, x : 2d, y : 0d),
+                new Node(id : 4, x : 3d, y : 0d),
+                new Node(id : 5, x : 0d, y : 1d),
+                new Node(id : 6, x : 1d, y : 1d),
+                new Node(id : 7, x : 2d, y : 1d),
+                new Node(id : 8, x : 3d, y : 1d),
+                new Node(id : 9, x : 0d, y : 2d),
+                new Node(id : 10, x : 1d, y : 2d),
+                new Node(id : 11, x : 2d, y : 2d),
+                new Node(id : 12, x : 3d, y : 2d),
+                new Node(id : 13, x : 0d, y : 3d),
+                new Node(id : 14, x : 1d, y : 3d),
+                new Node(id : 15, x : 2d, y : 3d),
+                new Node(id : 16, x : 3d, y : 3d),
             };
             foreach (var node in nodes)
             {
@@ -48,7 +43,7 @@ namespace ConvectionDiffusionTest
 
             var material = new ConvectionDiffusionProperties(capacityCoeff: CapacityCoeff, diffusionCoeff: DiffusionCoeff, convectionCoeff: ConvectionCoeff , dependentSourceCoeff: 0d, independentSourceCoeff: 0d);
 
-            var elementFactory = new ConvectionDiffusionElement2DFactory(commonThickness: 1, material);
+            var elementFactory = new ConvectionDiffusionElement2DFactory(commonThickness: 1d, material);
 
             var elementNodes = new IReadOnlyList<Node>[]
             {
@@ -112,11 +107,11 @@ namespace ConvectionDiffusionTest
             var isAMatch = true;
             for (int i = 0; i < numericalSolution.Length; i++)
             {
-                Console.WriteLine("Numerical: {0} \tPrescribed: {1}", numericalSolution[i], prescribedSolution[i]);
-                if (Math.Abs((prescribedSolution[i] - numericalSolution[i]) / prescribedSolution[i]) > 1E-6)
+                var error = Math.Abs((prescribedSolution[i] - numericalSolution[i]) / prescribedSolution[i]);
+                Console.WriteLine("Numerical: {0} \tPrescribed: {1} \tError: {2}", numericalSolution[i], prescribedSolution[i], error.ToString("E10"));
+                if (error > 1E-6)
                 {
                     isAMatch = false;
-                    // break;
                 }
             }
             if (isAMatch == true)

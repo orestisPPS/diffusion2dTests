@@ -18,20 +18,24 @@ namespace ConvectionDiffusionTest
         static void Main(string[] args)
         {
             //1D
-            //RodDiffusionTest();
-            //RodConvectionDiffusionTest();
+            //RodDiffusionTest();                                                        //Passed +
+            //RodConvectionDiffusionTest();                                              //Borderline fail - Passing 1e-3
 
             //2D
-            //Provatidis2dDiffusionSteadyStateTest();
-            //Provatidis2dDiffusionDynamicTest();
-            //Reddy2dDiffusionSteadyStateTest();
-            //Comsol2DConvectionDiffusionSteadyStateTest();
-            //Comsol2DConvectionDiffusionDynamicTest();
-            Comsol2DConvectionDiffusionProductionDynamicTest();
+            //Provatidis2dDiffusionSteadyStateTest();                                   //Passed +
+            //Provatidis2dDiffusionDynamicTest();                                       //Wrong Matrices -
+            //Reddy2dDiffusionSteadyStateTest();                                        //Passed
+
+            //Comsol2DConvectionDiffusionSteadyStateTest();                             //PASSED 100 FWTIA
+            //Comsol2DConvectionDiffusionDepProdSteadyStateTest();                             
+            //Comsol2DConvectionDiffusionDynamicTest();                                   //Passed 1E-4 error
+            Comsol2DConvectionDiffusionDepProdDynamicTest();                          //Passed 1E-3 error
 
             //3D
-            //Comsol3DConvectionDiffusionStadyStateHexaTest();
-            //Comsol3DConvectionDiffusionDynamicHexaTest();
+            //Comsol3DConvectionDiffusionStadyStateHexaTest();                          //PASSED 100 FWTIA
+            //Comsol3DConvectionDiffusionProductionStadyStateHexaTest();                //PASSED 100 FWTIA 
+            //Comsol3DConvectionDiffusionDynamicHexaTest();                             //PASSED 100 FWTIA
+            //Comsol3DConvectionDiffusionProductionDynamicHexaTest();                   //PASSED 100 FWTIA
         }
 
         static void RodDiffusionTest()
@@ -74,9 +78,9 @@ namespace ConvectionDiffusionTest
 
             var linearAnalyzer = new LinearAnalyzer(algebraicModel, solver, problem);
 
-            //var analyzer = new NewmarkDynamicAnalyzer.Builder(model, algebraicModel, solver, problem, linearAnalyzer, timeStep: 0.5, totalTime: 1000);
-            //analyzer.SetNewmarkParameters(beta: 0.25, gamma: 0.5, allowConditionallyStable: true);
-            //var analyzer = dynamicAnalyzerBuilder.Build();
+            //var analyzerBuilder = new NewmarkDynamicAnalyzer.Builder(model, algebraicModel, solver, problem, linearAnalyzer, timeStep: 0.5, totalTime: 10);
+            //analyzerBuilder.SetNewmarkParameters(beta: 0.25, gamma: 0.5, allowConditionallyStable: true);
+            //var analyzer = analyzerBuilder.Build();
 
             var analyzer = new StaticAnalyzer(model, algebraicModel, solver, problem, linearAnalyzer);
 
@@ -198,7 +202,7 @@ namespace ConvectionDiffusionTest
             var problem = new ProblemConvectionDiffusion(model, algebraicModel, solver);
 
             var linearAnalyzer = new LinearAnalyzer(algebraicModel, solver, problem);
-            var dynamicAnalyzerBuilder = new NewmarkDynamicAnalyzer.Builder(model, algebraicModel, solver, problem, linearAnalyzer, timeStep: 0.5, totalTime: 1000);
+            var dynamicAnalyzerBuilder = new NewmarkDynamicAnalyzer.Builder(model, algebraicModel, solver, problem, linearAnalyzer, timeStep: 0.5, totalTime: 10);
             dynamicAnalyzerBuilder.SetNewmarkParameters(beta: 0.25, gamma: 0.5, allowConditionallyStable: true);
             var dynamicAnalyzer = dynamicAnalyzerBuilder.Build();
 
@@ -273,16 +277,14 @@ namespace ConvectionDiffusionTest
 
             var linearAnalyzer = new LinearAnalyzer(algebraicModel, solver, problem);
 
-            var dynamicAnalyzerBuilder = new BDFDynamicAnalyzer.Builder(model, algebraicModel, solver, problem, linearAnalyzer, timeStep : 0.1, totalTime : 1, bdfOrder : 2);
-            //var dynamicAnalyzerBuilder = new NewmarkDynamicAnalyzer.Builder(model, algebraicModel, solver, problem, linearAnalyzer, timeStep: 0.5, totalTime: 2);
-            //dynamicAnalyzerBuilder.SetNewmarkParameters(beta: 0.25, gamma: 0.5, allowConditionallyStable: true);
+            var dynamicAnalyzerBuilder = new BDFDynamicAnalyzer.Builder(model, algebraicModel, solver, problem, linearAnalyzer, timeStep : 0.1, totalTime : 10, bdfOrder : 5);
             var dynamicAnalyzer = dynamicAnalyzerBuilder.Build();
 
             var watchDofs = new List<(INode node, IDofType dof)>()
             {
-/*                (model.NodesDictionary[6], ConvectionDiffusionDof.UnknownVariable),
+                (model.NodesDictionary[6], ConvectionDiffusionDof.UnknownVariable),
                 (model.NodesDictionary[7], ConvectionDiffusionDof.UnknownVariable),
-                (model.NodesDictionary[10], ConvectionDiffusionDof.UnknownVariable),*/
+                (model.NodesDictionary[10], ConvectionDiffusionDof.UnknownVariable),
                 (model.NodesDictionary[11], ConvectionDiffusionDof.UnknownVariable)
             };
 
@@ -300,9 +302,42 @@ namespace ConvectionDiffusionTest
             Comsol2DConvectionDiffusionDynamic.CheckResults(numericalSolution);
         }
 
+        static void Comsol3DConvectionDiffusionProductionStadyStateHexaTest()
+        {
+            var model = Comsol3DConvectionDiffusionProductionStStHexa.CreateModel();
+            //var solverFactory = new SkylineSolver.Factory(); //Dense Matrix Solver solves with zero matrices!
+            var solverFactory = new DenseMatrixSolver.Factory(); //Dense Matrix Solver solves with zero matrices!
+            var algebraicModel = solverFactory.BuildAlgebraicModel(model);
+            var solver = solverFactory.BuildSolver(algebraicModel);
+            var problem = new ProblemConvectionDiffusion(model, algebraicModel, solver);
+
+            var linearAnalyzer = new LinearAnalyzer(algebraicModel, solver, problem);
+
+            var analyzer = new StaticAnalyzer(model, algebraicModel, solver, problem, linearAnalyzer);
+
+            var watchDofs = new List<(INode node, IDofType dof)>()
+            {
+                (model.NodesDictionary[13], ConvectionDiffusionDof.UnknownVariable),
+            };
+
+            linearAnalyzer.LogFactory = new LinearAnalyzerLogFactory(watchDofs, algebraicModel);
+
+            analyzer.Initialize();
+            analyzer.Solve();
+
+            DOFSLog log = (DOFSLog)linearAnalyzer.Logs[0];
+            var numericalSolution = new double[watchDofs.Count];
+            for (int i = 0; i < numericalSolution.Length; i++)
+            {
+                numericalSolution[i] = log.DOFValues[watchDofs[i].node, watchDofs[i].dof];
+            }
+            Comsol3DConvectionDiffusionProductionStStHexa.CheckResults(numericalSolution);
+        }
+        
         static void Comsol3DConvectionDiffusionStadyStateHexaTest()
         {
             var model = Comsol3DConvectionDiffusionStadyStateHexa.CreateModel();
+            //var solverFactory = new SkylineSolver.Factory(); //Dense Matrix Solver solves with zero matrices!
             var solverFactory = new DenseMatrixSolver.Factory(); //Dense Matrix Solver solves with zero matrices!
             var algebraicModel = solverFactory.BuildAlgebraicModel(model);
             var solver = solverFactory.BuildSolver(algebraicModel);
@@ -365,7 +400,41 @@ namespace ConvectionDiffusionTest
             Comsol3DConvectionDiffusionDynamicHexa.CheckResults(numericalSolution);
         }
         
-        static void Comsol2DConvectionDiffusionProductionDynamicTest()
+        static void Comsol3DConvectionDiffusionProductionDynamicHexaTest()
+        {
+            var model = Comsol3DConvectionDiffusionProductionDynamicHexa.CreateModel();
+            var solverFactory = new DenseMatrixSolver.Factory(); //Dense Matrix Solver solves with zero matrices!
+            var algebraicModel = solverFactory.BuildAlgebraicModel(model);
+            var solver = solverFactory.BuildSolver(algebraicModel);
+            var problem = new ProblemConvectionDiffusion(model, algebraicModel, solver);
+
+            var linearAnalyzer = new LinearAnalyzer(algebraicModel, solver, problem);
+
+            var dynamicAnalyzerBuilder = new BDFDynamicAnalyzer.Builder(model, algebraicModel, solver, problem, linearAnalyzer, timeStep: 0.1, totalTime: 10, bdfOrder: 5);
+            //var dynamicAnalyzerBuilder = new NewmarkDynamicAnalyzer.Builder(model, algebraicModel, solver, problem, linearAnalyzer, timeStep: 0.5, totalTime: 2);
+            //dynamicAnalyzerBuilder.SetNewmarkParameters(beta: 0.25, gamma: 0.5, allowConditionallyStable: true);
+            var dynamicAnalyzer = dynamicAnalyzerBuilder.Build();
+
+            var watchDofs = new List<(INode node, IDofType dof)>()
+            {
+                (model.NodesDictionary[13], ConvectionDiffusionDof.UnknownVariable),
+            };
+
+            linearAnalyzer.LogFactory = new LinearAnalyzerLogFactory(watchDofs, algebraicModel);
+
+            dynamicAnalyzer.Initialize();
+            dynamicAnalyzer.Solve();
+
+            DOFSLog log = (DOFSLog)linearAnalyzer.Logs[0];
+            var numericalSolution = new double[watchDofs.Count];
+            for (int i = 0; i < numericalSolution.Length; i++)
+            {
+                numericalSolution[i] = log.DOFValues[watchDofs[i].node, watchDofs[i].dof];
+            }
+            Comsol3DConvectionDiffusionProductionDynamicHexa.CheckResults(numericalSolution);
+        }
+        
+        static void Comsol2DConvectionDiffusionDepProdDynamicTest()
         {
             var model = Comsol2DConvectionDiffusioProductionDynamic.CreateModel();
             var solverFactory = new DenseMatrixSolver.Factory();
