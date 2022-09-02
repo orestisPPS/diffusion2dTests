@@ -12,8 +12,9 @@ namespace ConvectionDiffusionTest
         public static double[] ConvectionCoeff => new[]  {1d, 1d, 1d};
         public static double DiffusionCoeff => 1d;
         public static double DependentProductionCoeff => 1d;
+        public static double IndependentProductionCoeff => 1d;
 
-        public static double[] prescribedSolution = new double[] { 112.49999999999996 }; // [1, 1, 1]
+        public static double[] prescribedSolution = new double[] { 113.24999999999996 }; // [1, 1, 1]
 
 		public static Model CreateModel()
         {
@@ -69,7 +70,7 @@ namespace ConvectionDiffusionTest
 				diffusionCoeff: DiffusionCoeff,
 				convectionCoeff: ConvectionCoeff,
 				dependentSourceCoeff: DependentProductionCoeff,
-				independentSourceCoeff: 0d);
+				independentSourceCoeff: IndependentProductionCoeff);
 
 			var elementFactory = new ConvectionDiffusionElement3DFactory(material);
             for (int i = 0; i < elementNodes.Length; i++)
@@ -120,7 +121,7 @@ namespace ConvectionDiffusionTest
             {
 				var error = Math.Abs((prescribedSolution[i] - numericalSolution[i]) / prescribedSolution[i]);
 
-				Console.WriteLine("Numerical: {0} \tPrescribed: {1} \t AbsoluteRelativeError: {2}", numericalSolution[i], prescribedSolution[i], error * 100d);
+				Console.WriteLine("Numerical: {0} \tPrescribed: {1} \t AbsoluteRelativeError: {2}", numericalSolution[i], prescribedSolution[i], error);
                 if (error > 1E-6)
                 {
                     isAMatch = false;

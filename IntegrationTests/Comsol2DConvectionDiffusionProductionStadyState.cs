@@ -6,18 +6,19 @@ using MGroup.MSolve.Discretization;
 
 namespace ConvectionDiffusionTest
 {
-    public static class Comsol2DConvectionDiffusioProductionDynamic
+    public static class Comsol2DConvectionDiffusionProductionStadyState
     {
-        public static double[] ConvectionCoeff => new[] { 1d, 1d };//{1d, 1d};
-        public static double DiffusionCoeff => 1d;
-        public static double CapacityCoeff => 1d;
-        public static double DependentSourceCoeff => 1d;
-        public static double IndependentSourceCoeff => 1d;
+        public static double[] ConvectionCoeff => new[] { 1d, 1d };
 
-        //                                                   [1,1]                [1,2]             [2,1]              [2,2]
-        //private static double[] prescribedSolution = { 356.6310547980037, 356.6310547980037, 467.6967659230567, 467.69676592305683 };     //Convection Diffusion Production(1u+1)
-        //                                                   [1,1]                [1,2]             [2,1]              [2,2]
-        private static double[] prescribedSolution = { 356.6310547980037, 356.6310547980037, 467.6967659230567, 467.69676592305683 };     //Convection Diffusion Production(1u)
+        public static double DiffusionCoeff => 1d;
+
+        public static double DependentSourceCoefficient => 1d;
+
+        public static double IndependentSourceCoefficient => 0d;
+
+        //                                                     6                  7                 10                11
+        //private static double[] prescribedSolution = { 96.15384615384615, 84.61538461538457, 96.15384615384615, 84.61538461538456 }; //dep and indep
+        private static double[] prescribedSolution = { 369.6666666666665, 487.83333333333286, 369.6666666666664, 487.8333333333329 }; //dep and indep
         public static Model CreateModel()
         {
             var model = new Model();
@@ -46,15 +47,10 @@ namespace ConvectionDiffusionTest
                 model.NodesDictionary.Add(node.ID, node);
             }
 
-            var material = new ConvectionDiffusionProperties(
-                capacityCoeff: CapacityCoeff, 
-                diffusionCoeff: DiffusionCoeff, 
-                convectionCoeff: ConvectionCoeff, 
-                dependentSourceCoeff: DependentSourceCoeff, 
-                independentSourceCoeff: IndependentSourceCoeff
-            );
+            var material = new ConvectionDiffusionProperties(capacityCoeff: 0d, diffusionCoeff: DiffusionCoeff, convectionCoeff: ConvectionCoeff,
+                                                             dependentSourceCoeff: DependentSourceCoefficient, independentSourceCoeff: IndependentSourceCoefficient);
 
-            var elementFactory = new ConvectionDiffusionElement2DFactory(commonThickness: 1d, material);
+            var elementFactory = new ConvectionDiffusionElement2DFactory(commonThickness: 1, material);
 
             var elementNodes = new IReadOnlyList<Node>[]
             {
@@ -91,7 +87,7 @@ namespace ConvectionDiffusionTest
 
             model.BoundaryConditions.Add(new ConvectionDiffusionBoundaryConditionSet(
                 new[]
-                {          
+                {
                     new NodalUnknownVariable(nodes[0], ConvectionDiffusionDof.UnknownVariable, 100d),
                     new NodalUnknownVariable(nodes[4], ConvectionDiffusionDof.UnknownVariable, 100d),
                     new NodalUnknownVariable(nodes[8], ConvectionDiffusionDof.UnknownVariable, 100d),
@@ -101,7 +97,7 @@ namespace ConvectionDiffusionTest
                     new NodalUnknownVariable(nodes[11], ConvectionDiffusionDof.UnknownVariable, 50d),
                     new NodalUnknownVariable(nodes[15], ConvectionDiffusionDof.UnknownVariable, 50d)
                 },
-                new INodalConvectionDiffusionNeumannBoundaryCondition[]{}
+                new INodalConvectionDiffusionNeumannBoundaryCondition[] { }
             ));
 
             return model;
@@ -118,8 +114,9 @@ namespace ConvectionDiffusionTest
             var isAMatch = true;
             for (int i = 0; i < numericalSolution.Length; i++)
             {
-                Console.WriteLine("Numerical: {0} \tPrescribed: {1}\t Error: {2}", numericalSolution[i], prescribedSolution[i], (Math.Abs((prescribedSolution[i] - numericalSolution[i]) / prescribedSolution[i])).ToString("E8"));
-                if (Math.Abs((prescribedSolution[i] - numericalSolution[i]) / prescribedSolution[i]) > 1E-3)
+                var error = Math.Abs((prescribedSolution[i] - numericalSolution[i]) / prescribedSolution[i]);
+                Console.WriteLine("Numerical: {0} \tPrescribed: {1} \tError: {2}", numericalSolution[i], prescribedSolution[i], error.ToString("E8"));
+                if (error > 1E-6)
                 {
                     isAMatch = false;
                     // break;
