@@ -9,6 +9,7 @@ using MGroup.NumericalAnalyzers.Logging;
 using MGroup.Constitutive.ConvectionDiffusion.BoundaryConditions;
 using MGroup.FEM.ConvectionDiffusion.Line;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace ConvectionDiffusionTest
 
@@ -17,6 +18,8 @@ namespace ConvectionDiffusionTest
     {
         static void Main(string[] args)
         {
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
             //1D
             //RodDiffusionTest();                                                        //Passed +
             //RodConvectionDiffusionTest();                                              //Borderline fail - Passing 1e-3
@@ -29,13 +32,17 @@ namespace ConvectionDiffusionTest
             //Comsol2DConvectionDiffusionSteadyStateTest();                             //PASSED 100 FWTIA
             //Comsol2DConvectionDiffusionDepProdSteadyStateTest();                             
             //Comsol2DConvectionDiffusionDynamicTest();                                   //Passed 1E-4 error
-            Comsol2DConvectionDiffusionDepProdDynamicTest();                          //Passed 1E-3 error
+            //Comsol2DConvectionDiffusionDepProdDynamicTest();                          //Passed 1E-3 error
 
             //3D
             //Comsol3DConvectionDiffusionStadyStateHexaTest();                          //PASSED 100 FWTIA
             //Comsol3DConvectionDiffusionProductionStadyStateHexaTest();                //PASSED 100 FWTIA 
             //Comsol3DConvectionDiffusionDynamicHexaTest();                             //PASSED 100 FWTIA
-            //Comsol3DConvectionDiffusionProductionDynamicHexaTest();                   //PASSED 100 FWTIA
+            Comsol3DConvectionDiffusionProductionDynamicHexaTest();                   //PASSED 100 FWTIA x2
+            
+            
+            stopwatch.Stop();
+            Console.WriteLine("CPU time : " + stopwatch.ElapsedMilliseconds + "ms");
         }
 
         static void RodDiffusionTest()

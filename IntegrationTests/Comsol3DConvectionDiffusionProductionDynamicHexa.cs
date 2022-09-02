@@ -9,11 +9,27 @@ namespace ConvectionDiffusionTest
 {
     public static class Comsol3DConvectionDiffusionProductionDynamicHexa
 	{
-        public static double[] ConvectionCoeff => new[]  {1d, 1d, 1d};
-        public static double DiffusionCoeff => 1d;
-        public static double DependentProductionCoeff => 1d;
+		//public static double[] ConvectionCoeff => new[]  {1d, 2d, 3d};
+		//public static double DiffusionCoeff => 5d;
+		//public static double DependentProductionCoeff => 5E-1;
+		//public static double IndependentProductionCoeff => 2d;
 
-        public static double[] prescribedSolution = new double[] { 112.49999832459005 }; // [1, 1, 1]
+		//public static double[] ConvectionCoeff => new[] { 1d, 1d, 1d };
+		//public static double DiffusionCoeff => 1d;
+		//public static double DependentProductionCoeff => 1;
+		//public static double IndependentProductionCoeff => 1d;
+		
+		public static double[] ConvectionCoeff => new[] { 4d, 5d, 6d };
+		public static double DiffusionCoeff => 1d;
+		public static double DependentProductionCoeff => 2;
+		public static double IndependentProductionCoeff => 10d;
+
+		//public static double[] prescribedSolution = new double[] { 112.49999832459005 }; // [1, 1, 1] DEPENDENT ONLY
+		//public static double[] prescribedSolution = new double[] { 113.24999828646702 }; // [1, 1, 1]
+		//public static double[] prescribedSolution = new double[] { 71.3275862069346 }; //5, [1, 1, 1], 0,5, 2 
+		//public static double[] prescribedSolution = new double[] { 164.9999999999738 }; //1, [2, 3, 4], 2, 10 
+		//public static double[] prescribedSolution = new double[] { 87.85714285714288 }; //3, [2, 3, 4], 2, 10
+		public static double[] prescribedSolution = new double[] { 89.99999998827113 }; //1, [4, 5, 6], 2, 10
 
 		public static Model CreateModel()
         {
@@ -69,7 +85,7 @@ namespace ConvectionDiffusionTest
 				diffusionCoeff: DiffusionCoeff,
 				convectionCoeff: ConvectionCoeff,
 				dependentSourceCoeff: DependentProductionCoeff,
-				independentSourceCoeff: 0d);
+				independentSourceCoeff: IndependentProductionCoeff);
 
 			var elementFactory = new ConvectionDiffusionElement3DFactory(material);
             for (int i = 0; i < elementNodes.Length; i++)
