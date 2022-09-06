@@ -18,12 +18,16 @@ namespace ConvectionDiffusionTest
     {
         static void Main(string[] args)
         {
+            //Mesh thigs
+            //var reader = new ComsolMeshReader("../../../Meshes/3d8Hexa.mphtxt"); 
+
+
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
             //1D
             //RodDiffusionTest();                                                        //Passed +
             //RodConvectionDiffusionTest();                                              //Borderline fail - Passing 1e-3
-
+ 
             //2D
             //Provatidis2dDiffusionSteadyStateTest();                                   //Passed +
             //Provatidis2dDiffusionDynamicTest();                                       //Wrong Matrices -
@@ -36,9 +40,9 @@ namespace ConvectionDiffusionTest
 
             //3D
             //Comsol3DConvectionDiffusionStadyStateHexaTest();                          //PASSED 100 FWTIA
-            //Comsol3DConvectionDiffusionProductionStadyStateHexaTest();                //PASSED 100 FWTIA x2
+            Comsol3DConvectionDiffusionProductionStadyStateHexaTest();                //PASSED 100 FWTIA x2
             //Comsol3DConvectionDiffusionDynamicHexaTest();                             //PASSED 100 FWTIA
-            Comsol3DConvectionDiffusionProductionDynamicHexaTest();                   //PASSED 100 FWTIA x2
+            //Comsol3DConvectionDiffusionProductionDynamicHexaTest();                   //PASSED 100 FWTIA x2
 
 
             stopwatch.Stop();
@@ -380,8 +384,7 @@ namespace ConvectionDiffusionTest
 
         static void Comsol3DConvectionDiffusionProductionStadyStateHexaTest()
         {
-            var model = Comsol3DConvectionDiffusionProductionStStHexa.CreateModel();
-            //var solverFactory = new SkylineSolver.Factory(); //Dense Matrix Solver solves with zero matrices!
+            var model = Comsol3DConvectionDiffusionProductionStStHexa.CreateModelFromComsolFile("../../../Meshes/3d8Hexa.mphtxt");
             var solverFactory = new DenseMatrixSolver.Factory(); //Dense Matrix Solver solves with zero matrices!
             var algebraicModel = solverFactory.BuildAlgebraicModel(model);
             var solver = solverFactory.BuildSolver(algebraicModel);

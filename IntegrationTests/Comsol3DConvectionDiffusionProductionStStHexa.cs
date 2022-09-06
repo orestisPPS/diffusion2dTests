@@ -16,6 +16,62 @@ namespace ConvectionDiffusionTest
 
         public static double[] prescribedSolution = new double[] { 113.24999999999996 }; // [1, 1, 1]
 
+		public static Model CreateModelFromComsolFile(string filename)
+		{
+			var model = new Model();
+			model.SubdomainsDictionary[0] = new Subdomain(id: 0);
+			
+			var reader = new ComsolMeshReader("../../../Meshes/3d8Hexa.mphtxt");
+
+            foreach (var node in reader.NodesDictionary.Values)
+            {
+                model.NodesDictionary.Add(node.ID, node);
+            }
+
+			var material = new ConvectionDiffusionProperties(
+				capacityCoeff: 0d,
+				diffusionCoeff: DiffusionCoeff,
+				convectionCoeff: ConvectionCoeff,
+				dependentSourceCoeff: DependentProductionCoeff,
+				independentSourceCoeff: IndependentProductionCoeff);
+
+			var elementFactory = new ConvectionDiffusionElement3DFactory(material);
+
+            foreach (var elementConnectivity in reader.ElementConnectivity)
+            {
+                var element = elementFactory.CreateElement(CellType.Hexa8, elementConnectivity.Value);
+                model.ElementsDictionary.Add(elementConnectivity.Key, element);
+                model.SubdomainsDictionary[0].Elements.Add(element);
+            }
+
+			model.BoundaryConditions.Add(new ConvectionDiffusionBoundaryConditionSet(
+				new[]
+				{
+					new NodalUnknownVariable(model.NodesDictionary[9], ConvectionDiffusionDof.UnknownVariable,  100d),
+					new NodalUnknownVariable(model.NodesDictionary[14], ConvectionDiffusionDof.UnknownVariable,  100d),
+					new NodalUnknownVariable(model.NodesDictionary[19], ConvectionDiffusionDof.UnknownVariable,  100d),
+					new NodalUnknownVariable(model.NodesDictionary[16], ConvectionDiffusionDof.UnknownVariable,  100d),
+					new NodalUnknownVariable(model.NodesDictionary[21], ConvectionDiffusionDof.UnknownVariable, 100d),
+					new NodalUnknownVariable(model.NodesDictionary[24], ConvectionDiffusionDof.UnknownVariable, 100d),
+					new NodalUnknownVariable(model.NodesDictionary[22], ConvectionDiffusionDof.UnknownVariable, 100d),
+					new NodalUnknownVariable(model.NodesDictionary[25], ConvectionDiffusionDof.UnknownVariable, 100d),
+					new NodalUnknownVariable(model.NodesDictionary[26], ConvectionDiffusionDof.UnknownVariable, 100d),
+					new NodalUnknownVariable(model.NodesDictionary[0], ConvectionDiffusionDof.UnknownVariable,  50d),
+					new NodalUnknownVariable(model.NodesDictionary[1], ConvectionDiffusionDof.UnknownVariable,  50d),
+					new NodalUnknownVariable(model.NodesDictionary[4], ConvectionDiffusionDof.UnknownVariable,  50d),
+					new NodalUnknownVariable(model.NodesDictionary[2], ConvectionDiffusionDof.UnknownVariable, 50d),
+					new NodalUnknownVariable(model.NodesDictionary[5], ConvectionDiffusionDof.UnknownVariable, 50d),
+					new NodalUnknownVariable(model.NodesDictionary[10], ConvectionDiffusionDof.UnknownVariable, 50d),
+					new NodalUnknownVariable(model.NodesDictionary[7], ConvectionDiffusionDof.UnknownVariable, 50d),
+					new NodalUnknownVariable(model.NodesDictionary[12], ConvectionDiffusionDof.UnknownVariable, 50d),
+					new NodalUnknownVariable(model.NodesDictionary[17], ConvectionDiffusionDof.UnknownVariable, 50d),
+				},
+				new INodalConvectionDiffusionNeumannBoundaryCondition[] { }
+			));
+
+			return model;
+		}
+
 		public static Model CreateModel()
         {
             var model = new Model();
