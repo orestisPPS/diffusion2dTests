@@ -31,7 +31,7 @@ namespace ConvectionDiffusionTest
                 using (var sr = new StreamReader(filepath))
                 {
                     ReadingStatus status = ReadingStatus.Unknown;
-                    Console.WriteLine("Reading file...");
+                    Console.WriteLine("Reading file {0}", filepath);
                     var line = sr.ReadLine();
                     var id = 0;
                     while (line != null)
@@ -78,8 +78,8 @@ namespace ConvectionDiffusionTest
                             NodesDictionary.Add(key: id, new Node(id: id, x: coords[0], y: coords[1], z: coords[2]));
 
                             //Print
-                            string identation = id < 10 ? " " : "";
-                            Console.WriteLine("Node {0}{1}: ({2}, {3}, {4})", id, identation, coords[0].ToString("F2"), coords[1].ToString("F2"), coords[2].ToString("F2"));
+                            //string identation = id < 10 ? " " : "";
+                            //Console.WriteLine("Node {0}{1}: ({2}, {3}, {4})", id, identation, coords[0].ToString("F2"), coords[1].ToString("F2"), coords[2].ToString("F2"));
                             //Increment id
                             id++;
                         }
@@ -100,12 +100,12 @@ namespace ConvectionDiffusionTest
                             ElementConnectivity.Add(key: id, value: nodes);
 
                             //Print
-                            Console.WriteLine("Element {0}", id);
-                            for (int i = 0; i < nodeIDs.Length; i++)
-                            {
-                                string identation = nodeIDs[i] < 10 ? " " : "";
-                                Console.WriteLine("\tNode {0}{1}: ({2}, {3}, {4})", nodeIDs[i], identation, NodesDictionary[nodeIDs[i]].X.ToString("F2"), NodesDictionary[nodeIDs[i]].Y.ToString("F2"), NodesDictionary[nodeIDs[i]].Z.ToString("F2"));
-                            }
+                            //Console.WriteLine("Element {0}", id);
+                            //for (int i = 0; i < nodeIDs.Length; i++)
+                            //{
+                               // string identation = nodeIDs[i] < 10 ? " " : "";
+                                //Console.WriteLine("\tNode {0}{1}: ({2}, {3}, {4})", nodeIDs[i], identation, NodesDictionary[nodeIDs[i]].X.ToString("F2"), NodesDictionary[nodeIDs[i]].Y.ToString("F2"), NodesDictionary[nodeIDs[i]].Z.ToString("F2"));
+                            //}
                             //Increment id
                             id++;
                         }
@@ -120,7 +120,7 @@ namespace ConvectionDiffusionTest
                 Console.WriteLine("The file could not be read:");
                 Console.WriteLine(e.Message);
             }
-            Console.WriteLine("Finished reading file");
+            Console.WriteLine("Finished reading file\n\n");
         }
     }
 }

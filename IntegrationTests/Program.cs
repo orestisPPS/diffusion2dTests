@@ -384,7 +384,7 @@ namespace ConvectionDiffusionTest
 
         static void Comsol3DConvectionDiffusionProductionStadyStateHexaTest()
         {
-            var model = Comsol3DConvectionDiffusionProductionStStHexa.CreateModelFromComsolFile("../../../Meshes/3d8Hexa.mphtxt");
+            var model = Comsol3DConvectionDiffusionProductionStStHexa.CreateModelFromComsolFile("../../../Meshes/3d8000Hexa_Finer.mphtxt"); // 3d8Hexa
             var solverFactory = new DenseMatrixSolver.Factory(); //Dense Matrix Solver solves with zero matrices!
             var algebraicModel = solverFactory.BuildAlgebraicModel(model);
             var solver = solverFactory.BuildSolver(algebraicModel);
@@ -396,9 +396,9 @@ namespace ConvectionDiffusionTest
 
             var watchDofs = new List<(INode node, IDofType dof)>()
             {
-                (model.NodesDictionary[13], ConvectionDiffusionDof.UnknownVariable),
+                //(model.NodesDictionary[13], ConvectionDiffusionDof.UnknownVariable),
+                (model.NodesDictionary[3474], ConvectionDiffusionDof.UnknownVariable), //Finer
             };
-
             linearAnalyzer.LogFactory = new LinearAnalyzerLogFactory(watchDofs, algebraicModel);
 
             analyzer.Initialize();
