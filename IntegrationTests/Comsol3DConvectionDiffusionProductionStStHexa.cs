@@ -14,8 +14,8 @@ namespace ConvectionDiffusionTest
         public static double DependentProductionCoeff => 1d;
         public static double IndependentProductionCoeff => 1d;
 
-        //public static double[] prescribedSolution = new double[] { 113.24999999999996 }; // [1, 1, 1]
-        public static double[] prescribedSolution = new double[] { 111.20284552676796 }; // Finer, node id 3474
+        public static double[] prescribedSolution = new double[] { 113.24999999999996 }; // [1, 1, 1] node id 13
+        //public static double[] prescribedSolution = new double[] { 111.20284552676796 }; // 3d8000Hexa_Finer, node id 3474
 
 
 
@@ -40,14 +40,14 @@ namespace ConvectionDiffusionTest
 
 			var elementFactory = new ConvectionDiffusionElement3DFactory(material);
 
-            foreach (var elementConnectivity in reader.ElementConnectivity)
-            {
-                var element = elementFactory.CreateElement(CellType.Hexa8, elementConnectivity.Value);
-                model.ElementsDictionary.Add(elementConnectivity.Key, element);
-                model.SubdomainsDictionary[0].Elements.Add(element);
-            }
+			foreach (var elementConnectivity in reader.ElementConnectivity)
+			{
+				var element = elementFactory.CreateElement(elementConnectivity.Value.Item1, elementConnectivity.Value.Item2);
+				model.ElementsDictionary.Add(elementConnectivity.Key, element);
+				model.SubdomainsDictionary[0].Elements.Add(element);
+			}
 
-            var topNodes = new List<INode>();
+			var topNodes = new List<INode>();
             var bottomNodes = new List<INode>();
             
             foreach (var node in model.NodesDictionary.Values)

@@ -11,6 +11,7 @@ using MGroup.FEM.ConvectionDiffusion.Line;
 using System.Collections.Generic;
 using System.Diagnostics;
 
+
 namespace ConvectionDiffusionTest
 
 {
@@ -19,9 +20,8 @@ namespace ConvectionDiffusionTest
         static void Main(string[] args)
         {
             //Mesh thigs
-            //var reader = new ComsolMeshReader("../../../Meshes/3d8Hexa.mphtxt"); 
-
-
+            var reader = new ComsolMeshReader("../../../Meshes/QuadExtremelyCoarse.mphtxt");
+            
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
             //1D
@@ -40,7 +40,7 @@ namespace ConvectionDiffusionTest
 
             //3D
             //Comsol3DConvectionDiffusionStadyStateHexaTest();                          //PASSED 100 FWTIA
-            Comsol3DConvectionDiffusionProductionStadyStateHexaTest();                //PASSED 100 FWTIA x2
+            //Comsol3DConvectionDiffusionProductionStadyStateHexaTest();                //PASSED 100 FWTIA x2 + ComsolMesh
             //Comsol3DConvectionDiffusionDynamicHexaTest();                             //PASSED 100 FWTIA
             //Comsol3DConvectionDiffusionProductionDynamicHexaTest();                   //PASSED 100 FWTIA x2
 
@@ -384,7 +384,7 @@ namespace ConvectionDiffusionTest
 
         static void Comsol3DConvectionDiffusionProductionStadyStateHexaTest()
         {
-            var model = Comsol3DConvectionDiffusionProductionStStHexa.CreateModelFromComsolFile("../../../Meshes/3d8000Hexa_Finer.mphtxt"); // 3d8Hexa
+            var model = Comsol3DConvectionDiffusionProductionStStHexa.CreateModelFromComsolFile("../../../Meshes/3d8Hexa.mphtxt"); // 3d8Hexa
             var solverFactory = new DenseMatrixSolver.Factory(); //Dense Matrix Solver solves with zero matrices!
             var algebraicModel = solverFactory.BuildAlgebraicModel(model);
             var solver = solverFactory.BuildSolver(algebraicModel);
@@ -396,8 +396,8 @@ namespace ConvectionDiffusionTest
 
             var watchDofs = new List<(INode node, IDofType dof)>()
             {
-                //(model.NodesDictionary[13], ConvectionDiffusionDof.UnknownVariable),
-                (model.NodesDictionary[3474], ConvectionDiffusionDof.UnknownVariable), //Finer
+                (model.NodesDictionary[13], ConvectionDiffusionDof.UnknownVariable),
+                //(model.NodesDictionary[3474], ConvectionDiffusionDof.UnknownVariable), //Finer
             };
             linearAnalyzer.LogFactory = new LinearAnalyzerLogFactory(watchDofs, algebraicModel);
 
