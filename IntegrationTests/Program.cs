@@ -10,24 +10,34 @@ using MGroup.Constitutive.ConvectionDiffusion.BoundaryConditions;
 using MGroup.FEM.ConvectionDiffusion.Line;
 using System.Collections.Generic;
 using System.Diagnostics;
-
+using MGroup.MSolve.AnalysisWorkflow;
+using MGroup.NumericalAnalyzers.Staggered;
+using MGroup.MSolve.Solution;
 
 namespace ConvectionDiffusionTest
 
 {
     class Program
     {
+        static List<(INode node, IDofType dof)>[] watchDofs;
+        static LinearAnalyzer[] linearAnalyzers;
+        static GenericAnalyzerState[] analyzerStates;
+        static Model[] model;
+        static double timeStep = 0.1;
+        static double totalTime = 10;
+        static int currentTimeStep = 0;
+
         static void Main(string[] args)
         {
             //Mesh thigs
-            var reader = new ComsolMeshReader("../../../Meshes/QuadExtremelyCoarse.mphtxt");
+            //var reader = new ComsolMeshReader("../../../Meshes/OfficialMeshCyprus.mphtxt");
             
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
             //1D
             //RodDiffusionTest();                                                        //Passed +
             //RodConvectionDiffusionTest();                                              //Borderline fail - Passing 1e-3
- 
+
             //2D
             //Provatidis2dDiffusionSteadyStateTest();                                   //Passed +
             //Provatidis2dDiffusionDynamicTest();                                       //Wrong Matrices -
@@ -43,6 +53,10 @@ namespace ConvectionDiffusionTest
             //Comsol3DConvectionDiffusionProductionStadyStateHexaTest();                //PASSED 100 FWTIA x2 + ComsolMesh
             //Comsol3DConvectionDiffusionDynamicHexaTest();                             //PASSED 100 FWTIA
             //Comsol3DConvectionDiffusionProductionDynamicHexaTest();                   //PASSED 100 FWTIA x2
+            
+            //Staggered
+            //Comsol3DStaggeredStatic();                                                //PASSED
+            Comsol3DStaggeredDynamic();
 
 
             stopwatch.Stop();
@@ -359,7 +373,10 @@ namespace ConvectionDiffusionTest
 
             var dynamicAnalyzerBuilder = new BDFDynamicAnalyzer.Builder(model, algebraicModel, solver, problem, linearAnalyzer, timeStep: 0.1, totalTime: 10, bdfOrder: 5);
             var dynamicAnalyzer = dynamicAnalyzerBuilder.Build();
-
+            //var dynamicAnalyzerBuilder = new NewmarkDynamicAnalyzer.Builder(model, algebraicModel, solver, problem, linearAnalyzer, timeStep: 0.5, totalTime: 2);
+            //dynamicAnalyzerBuilder.SetNewmarkParameters(beta: 0.25, gamma: 0.5, allowConditionallyStable: true);
+            //var dynamicAnalyzer = dynamicAnalyzerBuilder.Build();
+            
             var watchDofs = new List<(INode node, IDofType dof)>()
             {
                 (model.NodesDictionary[6], ConvectionDiffusionDof.UnknownVariable),  //[1,1]
@@ -412,7 +429,249 @@ namespace ConvectionDiffusionTest
             }
             Comsol3DConvectionDiffusionProductionStStHexa.CheckResults(numericalSolution);
         }
+
+        static void Comsol3DStaggeredStatic()
+        {
+            model = new[] {
+                Comsol3DStaggeredStSt.CreateModelFromComsolFile("../../../Meshes/3d8Hexa.mphtxt", ConvectionCoeff: new double[] {1d, 1d, 1d}, DiffusionCoeff: 1d, DependentProductionCoeff: 0d, IndependentProductionCoeff: 1d),
+                Comsol3DStaggeredStSt.CreateModelFromComsolFile("../../../Meshes/3d8Hexa.mphtxt", ConvectionCoeff: new double[] {1d, 1d, 1d}, DiffusionCoeff: 2d, DependentProductionCoeff: 0d, IndependentProductionCoeff: 2d)
+            };
+            
+            var solverFactory = new DenseMatrixSolver.Factory(); //Dense Matrix Solver solves with zero matrices!
+            
+            var algebraicModel = new[] {
+                solverFactory.BuildAlgebraicModel(model[0]), 
+                solverFactory.BuildAlgebraicModel(model[1]) 
+            };
+
+            var solver = new[] {
+                solverFactory.BuildSolver(algebraicModel[0]), 
+                solverFactory.BuildSolver(algebraicModel[1]) 
+            };
+
+            var problem = new[] {
+                new ProblemConvectionDiffusion(model[0], algebraicModel[0], solver[0]),
+                new ProblemConvectionDiffusion(model[1], algebraicModel[1], solver[1]) 
+            };
+
+            var linearAnalyzer = new[] {
+                new LinearAnalyzer(algebraicModel[0], solver[0], problem[0]),
+                new LinearAnalyzer(algebraicModel[1], solver[1], problem[1]) 
+            };
+
+            var analyzer = new[] { 
+                new StaticAnalyzer(model[0], algebraicModel[0], solver[0], problem[0], linearAnalyzer[0]), 
+                new StaticAnalyzer(model[1], algebraicModel[1], solver[1], problem[1], linearAnalyzer[1]) 
+            };
+
+            watchDofs = new[] {
+                new List<(INode node, IDofType dof)>(){ (model[0].NodesDictionary[13], ConvectionDiffusionDof.UnknownVariable), },
+                new List<(INode node, IDofType dof)>(){ (model[1].NodesDictionary[13], ConvectionDiffusionDof.UnknownVariable), }
+            };
+
+            linearAnalyzer[0].LogFactory = new LinearAnalyzerLogFactory(watchDofs[0], algebraicModel[0]);
+            linearAnalyzer[1].LogFactory = new LinearAnalyzerLogFactory(watchDofs[1], algebraicModel[1]);
+
+            var staggeredAnalyzer = new StaggeredAnalyzer(analyzer, solver, CreateNewModel, maxStaggeredSteps: 1000, tolerance: 1e-5);
+            staggeredAnalyzer.Initialize();
+            //for (int i = 0; i < 1000 / 0.5; i++)
+            //{
+            //	staggeredAnalyzer.SolveCurrentStep();
+            //	dynamicAnalyzer.AdvanceStep();
+            //}
+            staggeredAnalyzer.Solve();
+
+
+
+            //DOFSLog log = (DOFSLog)linearAnalyzer.Logs[0];
+            //var numericalSolution = new double[watchDofs.Count];
+            //for (int i = 0; i < numericalSolution.Length; i++)
+            //{
+            //    numericalSolution[i] = log.DOFValues[watchDofs[i].node, watchDofs[i].dof];
+            //}
+            //Comsol3DStaggeredStSt.CheckResults(numericalSolution);
+
+
+
+        }
         
+        private static void CreateNewModel(IParentAnalyzer[] analyzers, ISolver[] solvers)
+        {
+            double u1 = ((DOFSLog)analyzers[0].ChildAnalyzer.Logs[0]).DOFValues.FirstOrDefault().val;
+            double u2 = ((DOFSLog)analyzers[1].ChildAnalyzer.Logs[0]).DOFValues.FirstOrDefault().val;
+
+            model = new[] {
+                Comsol3DStaggeredStSt.CreateModelFromComsolFile("../../../Meshes/3d8Hexa.mphtxt", ConvectionCoeff: new double[] {1d, 1d, 1d}, DiffusionCoeff: 1d, DependentProductionCoeff: 0d, IndependentProductionCoeff:1d + u2),
+                Comsol3DStaggeredStSt.CreateModelFromComsolFile("../../../Meshes/3d8Hexa.mphtxt", ConvectionCoeff: new double[] {1d, 1d, 1d}, DiffusionCoeff: 2d, DependentProductionCoeff: 0d, IndependentProductionCoeff:2d + u1)
+            };
+
+            var solverFactory = new DenseMatrixSolver.Factory(); //Dense Matrix Solver solves with zero matrices!
+            var algebraicModel = new[] { 
+                solverFactory.BuildAlgebraicModel(model[0]),
+                solverFactory.BuildAlgebraicModel(model[1]) 
+            };
+
+            solvers[0] = solverFactory.BuildSolver(algebraicModel[0]); 
+            solvers[1] = solverFactory.BuildSolver(algebraicModel[1]);
+
+            var problem = new[] {
+                new ProblemConvectionDiffusion(model[0], algebraicModel[0], solvers[0]),
+                new ProblemConvectionDiffusion(model[1], algebraicModel[1], solvers[1]) 
+            };
+
+            linearAnalyzers = new[] {
+                new LinearAnalyzer(algebraicModel[0], solvers[0], problem[0]), 
+                new LinearAnalyzer(algebraicModel[1], solvers[1], problem[1]) 
+            };
+
+            analyzers[0] = new StaticAnalyzer(model[0], algebraicModel[0], solvers[0], problem[0], linearAnalyzers[0]);
+            analyzers[1] = new StaticAnalyzer(model[1], algebraicModel[1], solvers[1], problem[1], linearAnalyzers[1]);
+
+            watchDofs = new[] {
+                new List<(INode node, IDofType dof)>(){ (model[0].NodesDictionary[13], ConvectionDiffusionDof.UnknownVariable), },
+                new List<(INode node, IDofType dof)>(){ (model[1].NodesDictionary[13], ConvectionDiffusionDof.UnknownVariable), }
+            };
+
+            linearAnalyzers[0].LogFactory = new LinearAnalyzerLogFactory(watchDofs[0], algebraicModel[0]);
+            linearAnalyzers[1].LogFactory = new LinearAnalyzerLogFactory(watchDofs[1], algebraicModel[1]);
+
+            analyzers[0].Initialize(true);
+            analyzers[1].Initialize(true);
+        }
+
+
+        static void Comsol3DStaggeredDynamic()
+        {
+            model = new[] {
+                Comsol3DStaggeredStSt.CreateModelFromComsolFile("../../../Meshes/3d8Hexa.mphtxt", ConvectionCoeff: new double[] {1d, 1d, 1d}, DiffusionCoeff: 1d, DependentProductionCoeff: 0d, IndependentProductionCoeff: 1d, Capacity: 1d),
+                Comsol3DStaggeredStSt.CreateModelFromComsolFile("../../../Meshes/3d8Hexa.mphtxt", ConvectionCoeff: new double[] {1d, 1d, 1d}, DiffusionCoeff: 1d, DependentProductionCoeff: 0d, IndependentProductionCoeff: 1d, Capacity: 1d)
+            };
+
+            analyzerStates = new GenericAnalyzerState[model.Length];
+
+            var solverFactory = new DenseMatrixSolver.Factory(); //Dense Matrix Solver solves with zero matrices!
+
+            var algebraicModel = new[] {
+                solverFactory.BuildAlgebraicModel(model[0]),
+                solverFactory.BuildAlgebraicModel(model[1])
+            };
+
+            var solver = new[] {
+                solverFactory.BuildSolver(algebraicModel[0]),
+                solverFactory.BuildSolver(algebraicModel[1])
+            };
+
+            var problem = new[] {
+                new ProblemConvectionDiffusion(model[0], algebraicModel[0], solver[0]),
+                new ProblemConvectionDiffusion(model[1], algebraicModel[1], solver[1])
+            };
+
+            linearAnalyzers = new[] {
+                new LinearAnalyzer(algebraicModel[0], solver[0], problem[0]),
+                new LinearAnalyzer(algebraicModel[1], solver[1], problem[1])
+            };
+
+            //var analyzer = new[] {
+            //    (new BDFDynamicAnalyzer.Builder(model[0], algebraicModel[0], solver[0], problem[0], linearAnalyzer[0], timeStep: timeStep, totalTime: totalTime, 5)).Build(),
+            //    (new BDFDynamicAnalyzer.Builder(model[1], algebraicModel[1], solver[1], problem[1], linearAnalyzer[1], timeStep: timeStep, totalTime: totalTime, 5)).Build(),
+            //};
+
+            var analyzer = new[] {
+                (new NewmarkDynamicAnalyzer.Builder(model[0], algebraicModel[0], solver[0], problem[0], linearAnalyzers[0], timeStep: timeStep, totalTime: totalTime)).Build(),
+                (new NewmarkDynamicAnalyzer.Builder(model[1], algebraicModel[1], solver[1], problem[1], linearAnalyzers[1], timeStep: timeStep, totalTime: totalTime)).Build(),
+            };
+
+            watchDofs = new[] {
+                new List<(INode node, IDofType dof)>(){ (model[0].NodesDictionary[13], ConvectionDiffusionDof.UnknownVariable), },
+                new List<(INode node, IDofType dof)>(){ (model[1].NodesDictionary[13], ConvectionDiffusionDof.UnknownVariable), }
+            };
+
+            linearAnalyzers[0].LogFactory = new LinearAnalyzerLogFactory(watchDofs[0], algebraicModel[0]);
+            linearAnalyzers[1].LogFactory = new LinearAnalyzerLogFactory(watchDofs[1], algebraicModel[1]);
+
+            //analyzer[0].Initialize();
+            //analyzer[1].Initialize();
+            //analyzer[0].Solve();
+            //analyzer[1].Solve();
+
+            var u1s = new double[(int)(totalTime / timeStep)];
+            var u2s = new double[(int)(totalTime / timeStep)];
+            var staggeredAnalyzer = new StepwiseStaggeredAnalyzer(analyzer, solver, CreateNewModelDynamic, maxStaggeredSteps: 1000, tolerance: 1e-5);
+            staggeredAnalyzer.Initialize();
+            for (currentTimeStep = 0; currentTimeStep < totalTime / timeStep; currentTimeStep++)
+            {
+                staggeredAnalyzer.SolveCurrentStep();
+                u1s[currentTimeStep] = ((DOFSLog)analyzer[0].ChildAnalyzer.Logs[0]).DOFValues.FirstOrDefault().val;
+                u2s[currentTimeStep] = ((DOFSLog)analyzer[1].ChildAnalyzer.Logs[0]).DOFValues.FirstOrDefault().val;
+
+                for (int j = 0; j < analyzer.Length; j++)
+                {
+                    analyzer[j].AdvanceStep();
+                }
+
+                analyzerStates[0] = (analyzer[0] as IParentAnalyzer).CreateState();
+                analyzerStates[1] = (analyzer[1] as IParentAnalyzer).CreateState();
+            }
+        }
+
+        private static void CreateNewModelDynamic(IParentAnalyzer[] analyzers, ISolver[] solvers)
+        {
+            double u1 = ((DOFSLog)analyzers[0].ChildAnalyzer.Logs[0]).DOFValues.FirstOrDefault().val;
+            double u2 = ((DOFSLog)analyzers[1].ChildAnalyzer.Logs[0]).DOFValues.FirstOrDefault().val;
+            
+            model = new[] {
+                Comsol3DStaggeredStSt.CreateModelFromComsolFile("../../../Meshes/3d8Hexa.mphtxt", ConvectionCoeff: new double[] {1d, 1d, 1d}, DiffusionCoeff: 1d, DependentProductionCoeff: 0d, IndependentProductionCoeff: 1d + u2, Capacity: 1d),
+                Comsol3DStaggeredStSt.CreateModelFromComsolFile("../../../Meshes/3d8Hexa.mphtxt", ConvectionCoeff: new double[] {1d, 1d, 1d}, DiffusionCoeff: 1d, DependentProductionCoeff: 0d, IndependentProductionCoeff: 1d + u1, Capacity: 1d)
+            };
+            
+            var solverFactory = new DenseMatrixSolver.Factory();
+            var algebraicModel = new[] {
+                solverFactory.BuildAlgebraicModel(model[0]),
+                solverFactory.BuildAlgebraicModel(model[1])
+            };
+            
+            solvers[0] = solverFactory.BuildSolver(algebraicModel[0]);
+            solvers[1] = solverFactory.BuildSolver(algebraicModel[1]);
+            
+            var problem = new[] {
+                new ProblemConvectionDiffusion(model[0], algebraicModel[0], solvers[0]),
+                new ProblemConvectionDiffusion(model[1], algebraicModel[1], solvers[1])
+            };
+            
+            var linearAnalyzer = new[] {
+                new LinearAnalyzer(algebraicModel[0], solvers[0], problem[0]),
+                new LinearAnalyzer(algebraicModel[1], solvers[1], problem[1])
+            };
+            
+            var oldAnalyzers = analyzers.ToArray();
+            
+            //analyzers[0] = (new BDFDynamicAnalyzer.Builder(model[0], algebraicModel[0], solver[0], problem[0], linearAnalyzer[0], timeStep: timeStep, totalTime: totalTime, 5)).Build(),
+            //analyzers[1] = (new BDFDynamicAnalyzer.Builder(model[1], algebraicModel[1], solver[1], problem[1], linearAnalyzer[1], timeStep: timeStep, totalTime: totalTime, 5)).Build(),
+            
+            analyzers[0] = (new NewmarkDynamicAnalyzer.Builder(model[0], algebraicModel[0], solvers[0], problem[0], linearAnalyzer[0], timeStep: timeStep, totalTime: totalTime, currentStep: currentTimeStep)).Build();
+            analyzers[1] = (new NewmarkDynamicAnalyzer.Builder(model[1], algebraicModel[1], solvers[1], problem[1], linearAnalyzer[1], timeStep: timeStep, totalTime: totalTime, currentStep: currentTimeStep)).Build();
+            
+            watchDofs = new[] {
+                new List<(INode node, IDofType dof)>(){ (model[0].NodesDictionary[13], ConvectionDiffusionDof.UnknownVariable), },
+                new List<(INode node, IDofType dof)>(){ (model[1].NodesDictionary[13], ConvectionDiffusionDof.UnknownVariable), }
+            };
+            
+            linearAnalyzer[0].LogFactory = new LinearAnalyzerLogFactory(watchDofs[0], algebraicModel[0]);
+            linearAnalyzer[1].LogFactory = new LinearAnalyzerLogFactory(watchDofs[1], algebraicModel[1]);
+            
+            analyzers[0].Initialize(true);
+            if (analyzerStates[0] != null)
+            {
+                analyzers[0].CurrentState = analyzerStates[0];
+            }
+
+            analyzers[1].Initialize(true);
+            if (analyzerStates[1] != null)
+            {
+                analyzers[1].CurrentState = analyzerStates[1];
+            }
+        }
+
         static void Comsol3DConvectionDiffusionStadyStateHexaTest()
         {
             var model = Comsol3DConvectionDiffusionStadyStateHexa.CreateModel();

@@ -17,6 +17,8 @@ namespace ConvectionDiffusionTest
             ReadingNodes,
             FoundTet4,
             ReadingTet4,
+            FoundWedge6,
+            ReadingWedge6,
             FoundHexa8,
             ReadingHexa8
         }
@@ -39,9 +41,9 @@ namespace ConvectionDiffusionTest
                     var id = 0;
                     while (line != null)
                     {
-                        //Status update
+                        //Status update 
                         if (line.Equals("# Mesh vertex coordinates"))
-                        {
+                        {//Nodes
                             status = ReadingStatus.FoundNodes;
                             Console.WriteLine("Status: Found nodes");
                         }
@@ -51,7 +53,7 @@ namespace ConvectionDiffusionTest
                             Console.WriteLine("Status: Reading nodes");
                         }
                         else if (line.Equals("3 tet # type name"))
-                        {
+                        {//Tet4
                             status = ReadingStatus.FoundTet4;
                             Console.WriteLine("Status: Found Tet4");
                         }
@@ -60,8 +62,18 @@ namespace ConvectionDiffusionTest
                             status = ReadingStatus.ReadingTet4;
                             Console.WriteLine("Status: Reading Tet4");
                         }
-                        else if (line.Equals("3 hex # type name"))
+                        else if (line.Equals("5 prism # type name"))
+                        {//Wedge6
+                            status = ReadingStatus.FoundWedge6;
+                            Console.WriteLine("Status: Found Wedge6");
+                        }
+                        else if (status == ReadingStatus.FoundWedge6 && !line.Contains("#") && !line.Equals(""))
                         {
+                            status = ReadingStatus.ReadingWedge6;
+                            Console.WriteLine("Status: Reading Wedge6");
+                        }
+                        else if (line.Equals("3 hex # type name"))
+                        {//Hexa8
                             status = ReadingStatus.FoundHexa8;
                             Console.WriteLine("Status: Found Hexa8");
                         }
@@ -72,9 +84,10 @@ namespace ConvectionDiffusionTest
                         }
                         else if (line.Equals("") && 
                                 status != ReadingStatus.Unknown && 
-                                status != ReadingStatus.FoundHexa8 && 
-                                status != ReadingStatus.FoundTet4)
-                        {
+                                status != ReadingStatus.FoundHexa8 &&
+                                status != ReadingStatus.FoundTet4 &&
+                                status != ReadingStatus.FoundWedge6)
+                        {//Unknown
                             if (status == ReadingStatus.ReadingNodes) id = 0;
                             status = ReadingStatus.Unknown;
                             Console.WriteLine("Status: Unknown");
@@ -117,7 +130,33 @@ namespace ConvectionDiffusionTest
                             for (int i = 0; i < nodeIDs.Length; i++)
                             {
                                 string identation = nodeIDs[i] < 10 ? " " : "";
-                                Console.WriteLine("\tNode {0}{1}: ({2}, {3}, {4})", nodeIDs[i], identation, NodesDictionary[nodeIDs[i]].X.ToString("F2"), NodesDictionary[nodeIDs[i]].Y.ToString("F2"), NodesDictionary[nodeIDs[i]].Z.ToString("F2"));
+                                Console.WriteLine("\tNode {0}{1}: ({2}, {3}, {4})", nodeIDs[i], identation, NodesDictionary[nodeIDs[i]].X.ToString("F5"), NodesDictionary[nodeIDs[i]].Y.ToString("F5"), NodesDictionary[nodeIDs[i]].Z.ToString("F5"));
+                            }
+                            //Increment id
+                            id++;
+                        }
+                        else if (status == ReadingStatus.ReadingWedge6)
+                        {
+                            //Split line
+                            var nodesString = line.Split(" ");
+                            //Convert to int
+                            var nodeIDs = new int[nodesString.GetLength(0) - 1];
+                            for (int i = 0; i < nodeIDs.Length; i++)
+                                nodeIDs[i] = int.Parse(nodesString[i]);
+                            //Identify nodes and reorder to match MSolve convention
+                            var nodes = new Node[6];
+                            //var reorderedNodes = new int[] { 6, 7, 5, 4, 2, 3, 1, 0 };
+                            for (int i = 0; i < nodes.Length; i++)
+                                nodes[i] = NodesDictionary[nodeIDs[i]];
+                                //nodes[reorderedNodes[i]] = NodesDictionary[nodeIDs[i]];
+                            ElementConnectivity.Add(key: id, value: new Tuple<CellType, Node[]>(CellType.Wedge6, nodes));
+
+                            //Print
+                            Console.WriteLine("Element {0}", id);
+                            for (int i = 0; i < nodeIDs.Length; i++)
+                            {
+                                string identation = nodeIDs[i] < 10 ? " " : "";
+                                Console.WriteLine("\tNode {0}{1}: ({2}, {3}, {4})", nodeIDs[i], identation, NodesDictionary[nodeIDs[i]].X.ToString("F14"), NodesDictionary[nodeIDs[i]].Y.ToString("F14"), NodesDictionary[nodeIDs[i]].Z.ToString("F14"));
                             }
                             //Increment id
                             id++;
