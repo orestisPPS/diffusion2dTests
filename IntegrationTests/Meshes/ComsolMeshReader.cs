@@ -145,10 +145,11 @@ namespace ConvectionDiffusionTest
                                 nodeIDs[i] = int.Parse(nodesString[i]);
                             //Identify nodes and reorder to match MSolve convention
                             var nodes = new Node[6];
-                            //var reorderedNodes = new int[] { 6, 7, 5, 4, 2, 3, 1, 0 };
+                            var reorderedNodes = new int[] { 1, 2, 0, 4, 5, 3 };
+                            //var reorderedNodes = new int[] { 0, 1, 2, 3, 4, 5 };
+
                             for (int i = 0; i < nodes.Length; i++)
-                                nodes[i] = NodesDictionary[nodeIDs[i]];
-                                //nodes[reorderedNodes[i]] = NodesDictionary[nodeIDs[i]];
+                                nodes[reorderedNodes[i]] = NodesDictionary[nodeIDs[i]];
                             ElementConnectivity.Add(key: id, value: new Tuple<CellType, Node[]>(CellType.Wedge6, nodes));
 
                             //Print

@@ -11,6 +11,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MGroup.FEM.ConvectionDiffus
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MGroup.Solvers", "..\Solvers\src\MGroup.Solvers\MGroup.Solvers.csproj", "{32FC19D3-FF0A-4E98-9F2C-F79E188A2B0B}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MGroup.NumericalAnalyzers", "..\NumericalAnalyzers\src\MGroup.NumericalAnalyzers\MGroup.NumericalAnalyzers.csproj", "{ABC5EC4D-1709-4738-AE17-7DF8A155C88A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MGroup.NumericalAnalyzers.Discretization", "..\NumericalAnalyzers\src\MGroup.NumericalAnalyzers.Discretization\MGroup.NumericalAnalyzers.Discretization.csproj", "{441A4003-2953-4DFE-8AB4-67164A002D2E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +37,14 @@ Global
 		{32FC19D3-FF0A-4E98-9F2C-F79E188A2B0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{32FC19D3-FF0A-4E98-9F2C-F79E188A2B0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{32FC19D3-FF0A-4E98-9F2C-F79E188A2B0B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABC5EC4D-1709-4738-AE17-7DF8A155C88A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABC5EC4D-1709-4738-AE17-7DF8A155C88A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABC5EC4D-1709-4738-AE17-7DF8A155C88A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABC5EC4D-1709-4738-AE17-7DF8A155C88A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{441A4003-2953-4DFE-8AB4-67164A002D2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{441A4003-2953-4DFE-8AB4-67164A002D2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{441A4003-2953-4DFE-8AB4-67164A002D2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{441A4003-2953-4DFE-8AB4-67164A002D2E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

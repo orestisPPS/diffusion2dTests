@@ -51,8 +51,8 @@ namespace ConvectionDiffusionTest
             
             foreach (var node in model.NodesDictionary.Values)
             {
-                if (Math.Abs(2 - node.Z) < 1E-9) topNodes.Add(node);
-                if (Math.Abs(0 - node.Z) < 1E-9) bottomNodes.Add(node);
+                if (Math.Abs(2 - node.Y) < 1E-9) topNodes.Add(node);
+                if (Math.Abs(0 - node.Y) < 1E-9) bottomNodes.Add(node);
             }
 
 			int i = 0;

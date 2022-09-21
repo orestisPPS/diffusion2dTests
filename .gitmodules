@@ -4,3 +4,6 @@
 [submodule "Constitutive"]
 	path = Constitutive
 	url = https://github.com/TheoChristo/Constitutive.git
+[submodule "NumericalAnalyzers"]
+	path = NumericalAnalyzers
+	url = https://github.com/mgroupntua/NumericalAnalyzers.git
