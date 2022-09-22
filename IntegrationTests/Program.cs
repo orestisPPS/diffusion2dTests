@@ -60,7 +60,7 @@ namespace ConvectionDiffusionTest
 
 
             stopwatch.Stop();
-            Console.WriteLine("CPU time : " + stopwatch.ElapsedMilliseconds + "ms");
+            Console.WriteLine("Total CPU time : " + stopwatch.ElapsedMilliseconds + "ms");
         }
 
         static void RodDiffusionTest()
@@ -539,7 +539,6 @@ namespace ConvectionDiffusionTest
             analyzers[1].Initialize(true);
         }
 
-
         static void Comsol3DStaggeredDynamic()
         {
             //model = new[] {
@@ -577,15 +576,15 @@ namespace ConvectionDiffusionTest
             };
 
 
-            var analyzer = new[] {
-                (new NewmarkDynamicAnalyzer.Builder(model[0], algebraicModel[0], solver[0], problem[0], linearAnalyzers[0], timeStep: timeStep, totalTime: totalTime)).Build(),
-                (new NewmarkDynamicAnalyzer.Builder(model[1], algebraicModel[1], solver[1], problem[1], linearAnalyzers[1], timeStep: timeStep, totalTime: totalTime)).Build(),
-            };
+            //var analyzer = new[] {
+            //    (new NewmarkDynamicAnalyzer.Builder(model[0], algebraicModel[0], solver[0], problem[0], linearAnalyzers[0], timeStep: timeStep, totalTime: totalTime)).Build(),
+            //    (new NewmarkDynamicAnalyzer.Builder(model[1], algebraicModel[1], solver[1], problem[1], linearAnalyzers[1], timeStep: timeStep, totalTime: totalTime)).Build(),
+            //};
 
-/*            var analyzer = new[] {
+            var analyzer = new[] {
                 (new BDFDynamicAnalyzer.Builder(model[0], algebraicModel[0], solver[0], problem[0], linearAnalyzers[0], timeStep: timeStep, totalTime: totalTime, bdfOrder: 5)).Build(),
                 (new BDFDynamicAnalyzer.Builder(model[1], algebraicModel[1], solver[1], problem[1], linearAnalyzers[1], timeStep: timeStep, totalTime: totalTime, bdfOrder: 5)).Build(),
-            };*/
+            };
 
             watchDofs = new[] {
                 new List<(INode node, IDofType dof)>(){ (model[0].NodesDictionary[13], ConvectionDiffusionDof.UnknownVariable), },
@@ -651,11 +650,11 @@ namespace ConvectionDiffusionTest
             
             var oldAnalyzers = analyzers.ToArray();
 
-            analyzers[0] = (new NewmarkDynamicAnalyzer.Builder(model[0], algebraicModel[0], solvers[0], problem[0], linearAnalyzer[0], timeStep: timeStep, totalTime: totalTime, currentStep: currentTimeStep)).Build();
-            analyzers[1] = (new NewmarkDynamicAnalyzer.Builder(model[1], algebraicModel[1], solvers[1], problem[1], linearAnalyzer[1], timeStep: timeStep, totalTime: totalTime, currentStep: currentTimeStep)).Build();
+            //analyzers[0] = (new NewmarkDynamicAnalyzer.Builder(model[0], algebraicModel[0], solvers[0], problem[0], linearAnalyzer[0], timeStep: timeStep, totalTime: totalTime, currentStep: currentTimeStep)).Build();
+            //analyzers[1] = (new NewmarkDynamicAnalyzer.Builder(model[1], algebraicModel[1], solvers[1], problem[1], linearAnalyzer[1], timeStep: timeStep, totalTime: totalTime, currentStep: currentTimeStep)).Build();
             
-            //analyzers[0] = (new BDFDynamicAnalyzer.Builder(model[0], algebraicModel[0], solvers[0], problem[0], linearAnalyzer[0], timeStep: timeStep, totalTime: totalTime, bdfOrder: 5, currentTimeStep: currentTimeStep)).Build();
-            //analyzers[1] = (new BDFDynamicAnalyzer.Builder(model[1], algebraicModel[1], solvers[1], problem[1], linearAnalyzer[1], timeStep: timeStep, totalTime: totalTime, bdfOrder: 5, currentTimeStep: currentTimeStep)).Build();
+            analyzers[0] = (new BDFDynamicAnalyzer.Builder(model[0], algebraicModel[0], solvers[0], problem[0], linearAnalyzer[0], timeStep: timeStep, totalTime: totalTime, bdfOrder: 5, currentTimeStep: currentTimeStep)).Build();
+            analyzers[1] = (new BDFDynamicAnalyzer.Builder(model[1], algebraicModel[1], solvers[1], problem[1], linearAnalyzer[1], timeStep: timeStep, totalTime: totalTime, bdfOrder: 5, currentTimeStep: currentTimeStep)).Build();
 
             watchDofs = new[] {
                 new List<(INode node, IDofType dof)>(){ (model[0].NodesDictionary[13], ConvectionDiffusionDof.UnknownVariable), },
@@ -755,7 +754,7 @@ namespace ConvectionDiffusionTest
             var linearAnalyzer = new LinearAnalyzer(algebraicModel, solver, problem);
 
             var dynamicAnalyzerBuilder = new BDFDynamicAnalyzer.Builder(model, algebraicModel, solver, problem, linearAnalyzer, timeStep: 0.1, totalTime: 10, bdfOrder: 5);
-            //var dynamicAnalyzerBuilder = new NewmarkDynamicAnalyzer.Builder(model, algebraicModel, solver, problem, linearAnalyzer, timeStep: 0.5, totalTime: 2);
+            //var dynamicAnalyzerBuilder = new NewmarkDynamicAnalyzer.Builder(model, algebraicModel, solver, problem, linearAnalyzer, timeStep: 0.1, totalTime: 10);
             //dynamicAnalyzerBuilder.SetNewmarkParameters(beta: 0.25, gamma: 0.5, allowConditionallyStable: true);
             var dynamicAnalyzer = dynamicAnalyzerBuilder.Build();
 
@@ -767,8 +766,11 @@ namespace ConvectionDiffusionTest
             linearAnalyzer.LogFactory = new LinearAnalyzerLogFactory(watchDofs, algebraicModel);
 
             dynamicAnalyzer.Initialize();
+            Stopwatch stopwatchSolution = new Stopwatch();
+            stopwatchSolution.Start();
             dynamicAnalyzer.Solve();
-
+            stopwatchSolution.Stop();
+            Console.WriteLine("Solution time : " + stopwatchSolution.ElapsedMilliseconds + "ms");
             DOFSLog log = (DOFSLog)linearAnalyzer.Logs[0];
             var numericalSolution = new double[watchDofs.Count];
             for (int i = 0; i < numericalSolution.Length; i++)
