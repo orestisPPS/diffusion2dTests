@@ -1,3 +1,6 @@
 [submodule "FEM"]
 	path = FEM
 	url = https://github.com/TheoChristo/FEM.git
+[submodule "NumericalAnalyzers"]
+	path = NumericalAnalyzers
+	url = https://github.com/TheoChristo/NumericalAnalyzers
